@@ -1,13 +1,19 @@
 "use strict"
 
-var WIDTH = window.innerWidth,
-    HEIGHT = window.innerHeight,
-    RATIO = WIDTH / HEIGHT,
+//var WIDTH = window.innerWidth;
+//var HEIGHT = window.innerHeight;
+
+var WIDTH = 640;
+var HEIGHT = 480;
+
+var RATIO = WIDTH / HEIGHT,
     VIEW_ANGLE = 45,
     NEAR = 1,
     FAR = 10000;
 
 var camera, scene, clock, controls, renderer, stats, container, keyboard;
+
+var bulletList = Array();
 
 var ship;
 
@@ -16,97 +22,17 @@ window.onload = function(){
     animate();
 }
 
+var gridMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
+function MakeGrid(planeW, planeH, numW, numH){
+    var plane = new THREE.Mesh(
+            new THREE.PlaneGeometry(planeW*numW, planeH*numH, planeW, planeH),
+            gridMaterial );
 
-
-function createShipMesh(primaryColor, secondaryColor){
-    var shipMaterial = new THREE.MeshLambertMaterial({ vertexColors: THREE.VertexColors });
-
-    var faceIndices = ['a','b','c','d'];
-
-    var shipGeometry = new THREE.Geometry();
-    shipGeometry.vertices.push(new THREE.Vector3(-1, -1, 0));
-    shipGeometry.vertices.push(new THREE.Vector3(0, 0, -1));
-    shipGeometry.vertices.push(new THREE.Vector3(1, -1, 0));
-    shipGeometry.vertices.push(new THREE.Vector3(0, 2, 0));
-
-    shipGeometry.faces.push( new THREE.Face3( 0,1,2 ) );
-    shipGeometry.faces.push( new THREE.Face3( 3,2,1 ) );
-    shipGeometry.faces.push( new THREE.Face3( 3,1,0) );
-    shipGeometry.faces.push( new THREE.Face3( 0,2,3) );
-    
-    var primCol = new THREE.Color( 0xffffff );
-    primCol.setHSL(primaryColor[0], primaryColor[1], primaryColor[2]);
-    var secCol = new THREE.Color( 0xffffff );
-    secCol.setHSL(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-    
-    shipGeometry.colors[0] = primCol;
-    shipGeometry.colors[1] = secCol;
-    shipGeometry.colors[2] = primCol;
-    shipGeometry.colors[3] = primCol;
-
-    for (var i = 0; i < shipGeometry.faces.length; i++){
-        var face = shipGeometry.faces[i];
-        var numberOfSides = (face instanceof THREE.Face3) ? 3 : 4;
-        
-        for (var j = 0; j < numberOfSides; j++){
-            var vertexIndex = face[faceIndices[j]];
-            face.vertexColors[j] = shipGeometry.colors[vertexIndex];
-        }
-    }
-
-
-    var shipMesh = new THREE.Mesh( shipGeometry, shipMaterial );
-
-    return shipMesh
-}
-
-function PlayerShip(controls, primaryColor, secondaryColor){
-    // A dictionary containing keys
-    this.controls = controls;
-
-    this.mesh = createShipMesh(primaryColor, secondaryColor);
-
-    this.position = new THREE.Vector3();
-    this.velocity = new THREE.Vector3();
-    this.rotation = 0;
-    this.accel = 0.1;
-    this.rotSpeed = 0.15;
-
-    scene.add(this.mesh);
-}
-
-PlayerShip.prototype.update = function(){
-    if (keyboard.pressed(this.controls["up"])){
-        this.velocity.x += Math.cos(this.rotation+90*Math.PI/180)*this.accel;
-        this.velocity.y += Math.sin(this.rotation+90*Math.PI/180)*this.accel;
-    }
-    if (keyboard.pressed(this.controls["down"])){
-        this.velocity.x -= Math.cos(this.rotation+90*Math.PI/180)*this.accel;
-        this.velocity.y -= Math.sin(this.rotation+90*Math.PI/180)*this.accel;
-
-    }
-    if (keyboard.pressed(this.controls["left"])){
-        this.rotation -= this.rotSpeed;
-    }
-    if (keyboard.pressed(this.controls["right"])){
-        this.rotation += this.rotSpeed;
-    }
-
-    this.position.set(
-            this.position.x + this.velocity.x,
-            this.position.y + this.velocity.y,
-            0);
-
-    this.mesh.position.set(
-            this.position.x,
-            this.position.y,
-            this.position.z)
-
-    this.mesh.rotation.set(0, 0, this.rotation);
+    scene.add(plane);
 }
 
 function init(){
-    container = document.createElement( 'div' );
+    container = document.getElementById( 'container' );
     document.body.appendChild( container );
     
     renderer = new THREE.WebGLRenderer();
@@ -118,7 +44,7 @@ function init(){
     clock.start();
 
     camera = new THREE.PerspectiveCamera(VIEW_ANGLE, RATIO, NEAR, FAR);
-    camera.position.z = -30.0;
+    camera.position.z = -2.6;
 
     keyboard = new THREEx.KeyboardState();
 
@@ -146,13 +72,20 @@ function init(){
 
     scene.add( pointLight );
 
+    MakeGrid(10,10,.2,.2);
+
     scene.add(new THREE.AmbientLight(0xffffff));
     
     ship = new PlayerShip(
+                0.03,
                 {up:"up", down:"down", left:"left", right:"right"},
                 [Math.random(), Math.random(), Math.random()],
                 [Math.random(), Math.random(), Math.random()]
                 );
+
+    ship.position.x = 0.75;
+    ship.position.y = 0.75;
+
     
     window.addEventListener("resize", onWindowResize, false);
 }
@@ -164,7 +97,7 @@ function onWindowResize() {
     camera.aspect = WIDTH/HEIGHT;
     camera.updateProjectionMatrix();
 
-    renderer.setSize(WIDTH,HEIGHT)
+    //renderer.setSize(WIDTH,HEIGHT)
 }
 
 function animate(){
@@ -175,9 +108,16 @@ function animate(){
     stats.update();
 }
 
-function update(){
-    controls.update();
+var camPanSpeed = 0.5;
+var camPanStrength = 0.5;
 
+function update(){
+
+    camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+    camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+
+    controls.update();
+    
     ship.update();
 }
 

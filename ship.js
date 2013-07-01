@@ -1,0 +1,116 @@
+function createShipMesh(scale, primaryColor, secondaryColor){
+    var shipMaterial = new THREE.MeshLambertMaterial({ vertexColors: THREE.VertexColors });
+
+    var faceIndices = ['a','b','c','d'];
+
+    var shipGeometry = new THREE.Geometry();
+    shipGeometry.vertices.push(new THREE.Vector3(-1*scale, -1*scale, 0));
+    shipGeometry.vertices.push(new THREE.Vector3(0, 0, -1*scale));
+    shipGeometry.vertices.push(new THREE.Vector3(1*scale, -1*scale, 0));
+    shipGeometry.vertices.push(new THREE.Vector3(0, 2*scale, 0));
+
+    shipGeometry.faces.push( new THREE.Face3( 0,1,2 ) );
+    shipGeometry.faces.push( new THREE.Face3( 3,2,1 ) );
+    shipGeometry.faces.push( new THREE.Face3( 3,1,0) );
+    shipGeometry.faces.push( new THREE.Face3( 0,2,3) );
+    
+    var primCol = new THREE.Color( 0xffffff );
+    primCol.setHSL(primaryColor[0], primaryColor[1], primaryColor[2]);
+    var secCol = new THREE.Color( 0xffffff );
+    secCol.setHSL(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    
+    shipGeometry.colors[0] = primCol;
+    shipGeometry.colors[1] = secCol;
+    shipGeometry.colors[2] = primCol;
+    shipGeometry.colors[3] = primCol;
+
+    for (var i = 0; i < shipGeometry.faces.length; i++){
+        var face = shipGeometry.faces[i];
+        var numberOfSides = (face instanceof THREE.Face3) ? 3 : 4;
+        
+        for (var j = 0; j < numberOfSides; j++){
+            var vertexIndex = face[faceIndices[j]];
+            face.vertexColors[j] = shipGeometry.colors[vertexIndex];
+        }
+    }
+
+
+    var shipMesh = new THREE.Mesh( shipGeometry, shipMaterial );
+
+    return shipMesh
+}
+
+function PlayerShip(scale, controls, primaryColor, secondaryColor){
+    // A dictionary containing keys
+    this.controls = controls;
+
+    this.mesh = createShipMesh(scale, primaryColor, secondaryColor);
+    
+    this.position = new THREE.Vector3(0,0,0);
+    this.velocity = new THREE.Vector3();
+    this.rotation = 0;
+    this.accel = 0.0001;
+    this.rotSpeed = 0.1;
+    this.maxVel = 0.01;
+
+    scene.add(this.mesh);
+}
+
+var center = new THREE.Vector3(0,0,0);
+var gravForce = 0.0005;
+
+PlayerShip.prototype.update = function(){
+    if (keyboard.pressed(this.controls["up"])){
+        this.velocity.x += Math.cos(this.rotation+90*Math.PI/180)*this.accel;
+        this.velocity.y += Math.sin(this.rotation+90*Math.PI/180)*this.accel;
+    }
+    if (keyboard.pressed(this.controls["down"])){
+        this.velocity.x -= Math.cos(this.rotation+90*Math.PI/180)*this.accel;
+        this.velocity.y -= Math.sin(this.rotation+90*Math.PI/180)*this.accel;
+
+    }
+    
+    var gravVec = new THREE.Vector3();
+    gravVec.copy(this.position);
+    gravVec.normalize();
+    
+    this.velocity.x = clamp(-this.maxVel, this.velocity.x, this.maxVel);
+    this.velocity.y = clamp(-this.maxVel, this.velocity.y, this.maxVel);
+    
+    var distance = (this.position.x === 0 && this.position.y === 0) ? 0.0000000001 : center.distanceTo(this.position);
+    
+    this.velocity.x += (-gravVec.x * gravForce) / (distance*10);
+    this.velocity.y += (-gravVec.y * gravForce) / (distance*10);
+
+    if (keyboard.pressed(this.controls["left"])){
+        this.rotation -= this.rotSpeed;
+    }
+    if (keyboard.pressed(this.controls["right"])){
+        this.rotation += this.rotSpeed;
+    }
+
+    this.position.set(
+            this.position.x + this.velocity.x,
+            this.position.y + this.velocity.y,
+            0);
+
+    this.mesh.position.set(
+            this.position.x,
+            this.position.y,
+            this.position.z)
+
+    this.mesh.rotation.set(0, 0, this.rotation);
+
+    if (this.position.x > 1){
+        this.position.x = -1;
+    }
+    if (this.position.x < -1){
+        this.position.x = 1;
+    }
+    if (this.position.y > 1){
+        this.position.y = -1;
+    }
+    if (this.position.y < -1){
+        this.position.y = 1;
+    }
+}
