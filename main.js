@@ -1,14 +1,14 @@
 "use strict"
 
-//var WIDTH = window.innerWidth;
-//var HEIGHT = window.innerHeight;
+var WIDTH = window.innerWidth;
+var HEIGHT = window.innerHeight;
 
-var WIDTH = 640;
-var HEIGHT = 480;
+//var WIDTH = 640;
+//var HEIGHT = 480;
 
 var RATIO = WIDTH / HEIGHT,
     VIEW_ANGLE = 45,
-    NEAR = 1,
+    NEAR = 0.1,
     FAR = 10000;
 
 var camera, scene, clock, controls, renderer, stats, container, keyboard;
@@ -71,6 +71,8 @@ function init(){
     pointLight.position = camera.position;
 
     scene.add( pointLight );
+    
+    scene.add(BasicBullet(0xffffff, 0xffffff));
 
     MakeGrid(10,10,.2,.2);
 
@@ -78,7 +80,7 @@ function init(){
     
     ship = new PlayerShip(
                 0.03,
-                {up:"up", down:"down", left:"left", right:"right"},
+                {up:"up", down:"down", left:"left", right:"right", fire:"Z"},
                 [Math.random(), Math.random(), Math.random()],
                 [Math.random(), Math.random(), Math.random()]
                 );
@@ -112,13 +114,14 @@ var camPanSpeed = 0.5;
 var camPanStrength = 0.5;
 
 function update(){
+    var delta = clock.getDelta();
 
     camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
     camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
 
     controls.update();
     
-    ship.update();
+    ship.update(delta);
 }
 
 function render(){

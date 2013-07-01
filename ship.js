@@ -44,6 +44,11 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     // A dictionary containing keys
     this.controls = controls;
 
+    this.primCol = new THREE.Color( 0xffffff );
+    this.primCol.setHSL(primaryColor[0], primaryColor[1], primaryColor[2]);
+    this.secCol = new THREE.Color( 0xffffff );
+    this.secCol.setHSL(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+
     this.mesh = createShipMesh(scale, primaryColor, secondaryColor);
     
     this.position = new THREE.Vector3(0,0,0);
@@ -52,14 +57,32 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.accel = 0.0001;
     this.rotSpeed = 0.1;
     this.maxVel = 0.01;
+    this.bulletShotSpeed = 0.02;
+    this.timebetweenfiring = 0.2;
+    this.timesincelastfire = 0;
+
+    this.bullets = [];
 
     scene.add(this.mesh);
 }
 
 var center = new THREE.Vector3(0,0,0);
-var gravForce = 0.0005;
+var gravForce = 0.007;
 
-PlayerShip.prototype.update = function(){
+PlayerShip.prototype.update = function(delta){
+
+    this.updateBullets(delta);
+
+    if (keyboard.pressed(this.controls["fire"])){
+        if (this.timesincelastfire > this.timebetweenfiring){
+            this.onFire();
+            this.timesincelastfire = 0;
+        }
+    }
+    
+    console.log(delta);
+    this.timesincelastfire += delta;
+
     if (keyboard.pressed(this.controls["up"])){
         this.velocity.x += Math.cos(this.rotation+90*Math.PI/180)*this.accel;
         this.velocity.y += Math.sin(this.rotation+90*Math.PI/180)*this.accel;
@@ -74,13 +97,13 @@ PlayerShip.prototype.update = function(){
     gravVec.copy(this.position);
     gravVec.normalize();
     
-    this.velocity.x = clamp(-this.maxVel, this.velocity.x, this.maxVel);
-    this.velocity.y = clamp(-this.maxVel, this.velocity.y, this.maxVel);
+    //this.velocity.x = clamp(-this.maxVel, this.velocity.x, this.maxVel);
+    //this.velocity.y = clamp(-this.maxVel, this.velocity.y, this.maxVel);
     
-    var distance = (this.position.x === 0 && this.position.y === 0) ? 0.0000000001 : center.distanceTo(this.position);
+    var distance = (this.position.x === 0 && this.position.y === 0) ? 0.00000000000001 : center.distanceTo(this.position);
     
-    this.velocity.x += (-gravVec.x * gravForce) / (distance*10);
-    this.velocity.y += (-gravVec.y * gravForce) / (distance*10);
+    this.velocity.x += (-gravVec.x * gravForce) / (distance*100);
+    this.velocity.y += (-gravVec.y * gravForce) / (distance*100);
 
     if (keyboard.pressed(this.controls["left"])){
         this.rotation -= this.rotSpeed;
@@ -113,4 +136,38 @@ PlayerShip.prototype.update = function(){
     if (this.position.y < -1){
         this.position.y = 1;
     }
+    
+}
+
+PlayerShip.prototype.updateBullets = function(delta){
+    for (var i = 0; i < this.bullets.length; i++){
+        this.bullets[i].update(delta);
+    }
+    
+    this.deleteBullets();
+}
+
+PlayerShip.prototype.deleteBullets = function(){
+    for (var i = 0; i < this.bullets.length; i++){
+        if (this.bullets[i].lifetime < 0){
+            this.bullets[i].exit();
+            this.bullet = 0;
+            this.bullets.splice(i, 1);
+            this.deleteBullets();
+        }
+    }
+}
+
+PlayerShip.prototype.onFire = function(){
+    var bullet = new BasicBullet(this.primCol, this.secCol);
+    bullet.position.copy(this.position);
+
+    bullet.velocity.set(
+            Math.cos(this.rotation+90*Math.PI/180)*this.bulletShotSpeed + this.velocity.x,
+            Math.sin(this.rotation+90*Math.PI/180)*this.bulletShotSpeed + this.velocity.y,
+            0
+            );
+
+    this.bullets.push(bullet);
+    
 }
