@@ -42,6 +42,7 @@ function createShipMesh(scale, primaryColor, secondaryColor){
 
 function PlayerShip(scale, controls, primaryColor, secondaryColor){
     // A dictionary containing keys
+    this.scale = scale;
     this.controls = controls;
 
     this.primCol = new THREE.Color( 0xffffff );
@@ -51,15 +52,17 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
 
     this.mesh = createShipMesh(scale, primaryColor, secondaryColor);
     
-    this.position = new THREE.Vector3(0,0,0);
+    this.spawnPoint = new THREE.Vector3(0.75, 0.75, 0);
+    this.position = new THREE.Vector3(this.spawnPoint.x, this.spawnPoint.y,0);
     this.velocity = new THREE.Vector3();
     this.rotation = 0;
     this.accel = 0.0001;
     this.rotSpeed = 0.1;
     this.maxVel = 0.01;
     this.bulletShotSpeed = 0.02;
-    this.timebetweenfiring = 0.5;
+    this.timebetweenfiring = 1.0;
     this.timesincelastfire = 0;
+    this.score = 0;
 
     this.bullets = [];
 
@@ -83,13 +86,7 @@ PlayerShip.prototype.update = function(delta){
     this.timesincelastfire += delta;
 
     if (keyboard.pressed(this.controls["up"])){
-        this.velocity.x += Math.cos(this.rotation+90*Math.PI/180)*this.accel;
-        this.velocity.y += Math.sin(this.rotation+90*Math.PI/180)*this.accel;
-    }
-    if (keyboard.pressed(this.controls["down"])){
-        this.velocity.x -= Math.cos(this.rotation+90*Math.PI/180)*this.accel;
-        this.velocity.y -= Math.sin(this.rotation+90*Math.PI/180)*this.accel;
-
+        this.onAccel();
     }
     
     var gravVec = new THREE.Vector3();
@@ -135,7 +132,16 @@ PlayerShip.prototype.update = function(delta){
     if (this.position.y < -1){
         this.position.y = 1;
     }
+
+    if (this.position.distanceTo(center) < sun.radius){
+        this.onSpawn();
+    }
     
+}
+
+PlayerShip.prototype.onAccel = function(){
+    this.velocity.x += Math.cos(this.rotation+90*Math.PI/180)*this.accel;
+    this.velocity.y += Math.sin(this.rotation+90*Math.PI/180)*this.accel;
 }
 
 PlayerShip.prototype.updateBullets = function(delta){
@@ -148,7 +154,10 @@ PlayerShip.prototype.updateBullets = function(delta){
 
 PlayerShip.prototype.deleteBullets = function(){
     for (var i = 0; i < this.bullets.length; i++){
-        if (this.bullets[i].lifetime < 0){
+        if (
+                this.bullets[i].lifetime < 0 ||
+                this.bullets[i].position.distanceTo(center) < sun.radius){
+
             this.bullets[i].exit();
             this.bullet = 0;
             this.bullets.splice(i, 1);
@@ -169,4 +178,19 @@ PlayerShip.prototype.onFire = function(){
 
     this.bullets.push(bullet);
     
+}
+
+PlayerShip.prototype.onSpawn = function(){
+    this.position.set(this.spawnPoint.x, this.spawnPoint.y, 0);
+    this.velocity.set(0,0,0);
+}
+
+PlayerShip.prototype.checkBulletsAgainst = function(ship){
+    for (var i = 0; i < this.bullets.length; i++){
+        if (this.bullets[i].position.distanceTo(ship.position) < ship.scale){
+            ship.onSpawn();
+            this.score += 1;
+            updateScore();
+        }
+    }
 }

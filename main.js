@@ -1,10 +1,16 @@
 "use strict"
 
-var WIDTH = window.innerWidth;
-var HEIGHT = window.innerHeight;
+// 1 for 1:1 rendering, 2 for resolution/2 rendering, 0.5 for 2*resolution rendering (supersampling)...
+var sFactor = 2;
 
-//var WIDTH = 320;
+var WIDTH = window.innerWidth/sFactor;
+var HEIGHT = window.innerHeight/sFactor;
+
+//var WIDTH = 512;
 //var HEIGHT = 240;
+
+// for the TV shader effect
+var shaderEnabled = false;
 
 var RATIO = WIDTH / HEIGHT,
     VIEW_ANGLE = 45,
@@ -14,9 +20,9 @@ var RATIO = WIDTH / HEIGHT,
 var camera, scene, clock, controls, renderer, stats, container, keyboard;
 var composer, effect;
 
-var bulletList = Array();
+var ship, ship2, sun;
 
-var ship;
+var scoreText;
 
 window.onload = function(){
     init();
@@ -74,47 +80,73 @@ function init(){
 
     scene.add( pointLight );
     
-    scene.add(BasicBullet(0xffffff, 0xffffff));
-
     MakeGrid(10,10,.2,.2);
 
     scene.add(new THREE.AmbientLight(0xffffff));
+
+    sun = new Sun();
     
     ship = new PlayerShip(
                 0.03,
-                {up:"up", down:"down", left:"left", right:"right", fire:"Z"},
+                {up:"W", left:"A", right:"D",fire:"S"},
                 [Math.random(), 1,.5],
-                [Math.random(), 1,.5]
-                );
+                [Math.random(), 1,.5]);
 
     ship.position.x = 0.75;
     ship.position.y = 0.75;
     
+    ship2 = new PlayerShip(
+                0.03,
+                {up:"up", left:"left", right:"right", fire:"down"},
+                [Math.random(), 1,.5],
+                [Math.random(), 1,.5]);
+
+    ship2.position.x = -0.75;
+    ship2.position.y = -0.75;
+
+    ship2.spawnPoint.set(-0.75, -0.75);
+
+
     composer = new THREE.EffectComposer( renderer );
     composer.addPass( new THREE.RenderPass( scene, camera ) );
+    composer.setSize(WIDTH, HEIGHT);
     
-    effect = new THREE.ShaderPass( THREE.TheScreenShader );
-    effect.uniforms["resolution"].value.x = WIDTH;
-    effect.uniforms["resolution"].value.y = HEIGHT;
-
-    //console.log(effect.uniforms);
-    
-    effect.renderToScreen = true;
-    composer.addPass( effect );
-    
+    // comment when enabling shaders
+    if (!shaderEnabled){
+        var e = new THREE.ShaderPass( THREE.CopyShader );
+        e.renderToScreen = true;
+        composer.addPass(e);
+    } else {
+        effect = new THREE.ShaderPass( THREE.TheScreenShader );
+        effect.uniforms["resolution"].value.x = WIDTH;
+        effect.uniforms["resolution"].value.y = HEIGHT;
+        effect.renderToScreen = true;
+        composer.addPass( effect );
+    }
     window.addEventListener("resize", onWindowResize, false);
 
+    scoreText = document.getElementById("scoretext");
+    updateScore();
+}
 
+function updateScore(){
+    scoreText.textContent = "Score: " + ship.score + " - " + ship2.score;
 }
 
 function onWindowResize() {
-    WIDTH = window.innerWidth;
-    HEIGHT = window.innerHeight;
+    WIDTH = window.innerWidth/sFactor;
+    HEIGHT = window.innerHeight/sFactor;
 
     camera.aspect = WIDTH/HEIGHT;
     camera.updateProjectionMatrix();
 
-    //renderer.setSize(WIDTH,HEIGHT)
+    if (shaderEnabled){
+        effect.uniforms["resolution"].value.x = WIDTH;
+        effect.uniforms["resolution"].value.y = HEIGHT;
+    }
+
+    composer.setSize(WIDTH,HEIGHT)
+    renderer.setSize(WIDTH,HEIGHT)
 }
 
 function animate(){
@@ -130,16 +162,26 @@ var camPanStrength = 0.5;
 
 function update(){
     var delta = clock.getDelta();
+    var curTime = clock.getElapsedTime();
 
     camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
     camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
 
     controls.update();
-
-    effect.uniforms["time"].value = clock.getElapsedTime()/1000.0;
-
     
+    if (shaderEnabled){
+        effect.uniforms["time"].value = curTime;
+    }
+    
+    sunShader.uniforms["time"].value = curTime;
+
+    sunShader.uniforms.amplitude.value = Math.sin(curTime*3);
+
     ship.update(delta);
+    ship2.update(delta);
+
+    ship.checkBulletsAgainst(ship2);
+    ship2.checkBulletsAgainst(ship);
 }
 
 function render(){

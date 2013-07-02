@@ -3,16 +3,16 @@ function BasicBullet(color){
     this.segments = 6;
     this.rings = 4;
 
-    this.lifetime = 2;
+    this.lifetime = 1;
 
     this.position = new THREE.Vector3(0,0,0);
     this.velocity = new THREE.Vector3(0,0,0);
 
     this.mesh = new THREE.Mesh(
             new THREE.SphereGeometry(
-                radius,
-                segments,
-                rings),
+                this.radius,
+                this.segments,
+                this.rings),
 
             new THREE.MeshBasicMaterial({ color: color }));
 
@@ -31,7 +31,7 @@ BasicBullet.prototype.update = function(delta){
     gravVec.copy(this.position);
     gravVec.normalize();
 
-    var distance = (this.position.x === 0 && this.position.y === 0) ? 0.00000000000001 : center.distanceTo(this.position);
+    var distance = center.distanceTo(this.position);
     
     this.velocity.x += (-gravVec.x * 0.1) / (distance*100);
     this.velocity.y += (-gravVec.y * 0.1) / (distance*100);
