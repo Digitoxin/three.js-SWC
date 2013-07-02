@@ -58,7 +58,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.rotSpeed = 0.1;
     this.maxVel = 0.01;
     this.bulletShotSpeed = 0.02;
-    this.timebetweenfiring = 0.2;
+    this.timebetweenfiring = 0.5;
     this.timesincelastfire = 0;
 
     this.bullets = [];
@@ -80,7 +80,6 @@ PlayerShip.prototype.update = function(delta){
         }
     }
     
-    console.log(delta);
     this.timesincelastfire += delta;
 
     if (keyboard.pressed(this.controls["up"])){
@@ -159,7 +158,7 @@ PlayerShip.prototype.deleteBullets = function(){
 }
 
 PlayerShip.prototype.onFire = function(){
-    var bullet = new BasicBullet(this.primCol, this.secCol);
+    var bullet = new BasicBullet(this.primCol);
     bullet.position.copy(this.position);
 
     bullet.velocity.set(

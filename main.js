@@ -3,8 +3,8 @@
 var WIDTH = window.innerWidth;
 var HEIGHT = window.innerHeight;
 
-//var WIDTH = 640;
-//var HEIGHT = 480;
+//var WIDTH = 320;
+//var HEIGHT = 240;
 
 var RATIO = WIDTH / HEIGHT,
     VIEW_ANGLE = 45,
@@ -12,6 +12,7 @@ var RATIO = WIDTH / HEIGHT,
     FAR = 10000;
 
 var camera, scene, clock, controls, renderer, stats, container, keyboard;
+var composer, effect;
 
 var bulletList = Array();
 
@@ -67,6 +68,7 @@ function init(){
     scene = new THREE.Scene();
     scene.add(camera);
     
+        
     var pointLight = new THREE.PointLight(0xffffff,1.0,100.0);
     pointLight.position = camera.position;
 
@@ -81,15 +83,28 @@ function init(){
     ship = new PlayerShip(
                 0.03,
                 {up:"up", down:"down", left:"left", right:"right", fire:"Z"},
-                [Math.random(), Math.random(), Math.random()],
-                [Math.random(), Math.random(), Math.random()]
+                [Math.random(), 1,.5],
+                [Math.random(), 1,.5]
                 );
 
     ship.position.x = 0.75;
     ship.position.y = 0.75;
+    
+    composer = new THREE.EffectComposer( renderer );
+    composer.addPass( new THREE.RenderPass( scene, camera ) );
+    
+    effect = new THREE.ShaderPass( THREE.TheScreenShader );
+    effect.uniforms["resolution"].value.x = WIDTH;
+    effect.uniforms["resolution"].value.y = HEIGHT;
 
+    //console.log(effect.uniforms);
+    
+    effect.renderToScreen = true;
+    composer.addPass( effect );
     
     window.addEventListener("resize", onWindowResize, false);
+
+
 }
 
 function onWindowResize() {
@@ -120,10 +135,13 @@ function update(){
     camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
 
     controls.update();
+
+    effect.uniforms["time"].value = clock.getElapsedTime()/1000.0;
+
     
     ship.update(delta);
 }
 
 function render(){
-    renderer.render(scene, camera);
+    composer.render();
 }

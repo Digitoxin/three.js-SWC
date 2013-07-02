@@ -1,11 +1,9 @@
-var bulletMaterial = new THREE.MeshLambertMaterial({ vertexColors: THREE.VertexColors, wireframe:true });
-
-function BasicBullet(primaryColor, secondaryColor){
+function BasicBullet(color){
     this.radius = 0.01;
     this.segments = 6;
     this.rings = 4;
 
-    this.lifetime = 3;
+    this.lifetime = 2;
 
     this.position = new THREE.Vector3(0,0,0);
     this.velocity = new THREE.Vector3(0,0,0);
@@ -16,7 +14,7 @@ function BasicBullet(primaryColor, secondaryColor){
                 segments,
                 rings),
 
-            bulletMaterial);
+            new THREE.MeshBasicMaterial({ color: color }));
 
     this.mesh.position = this.position;
 
