@@ -151,18 +151,21 @@ function onWindowResize() {
     renderer.setSize(WIDTH,HEIGHT)
 }
 
-var frameCounter = 0;
+var timeCounter = 0;
 
 var delta;
 function animate(){
-    delta = clock.getDelta();
     requestAnimationFrame(animate);
-    while (frameCounter > updatesPerSecond){
+    
+    var oDelta = clock.getDelta();
+    delta = oDelta / (timeCounter / updatesPerSecond);
+    while (timeCounter > updatesPerSecond){
         update();
-        frameCounter -= updatesPerSecond;
+        timeCounter -= updatesPerSecond;
     }
-    frameCounter += delta;
-
+    
+    timeCounter += oDelta;
+    
     render();
 
     stats.update();
