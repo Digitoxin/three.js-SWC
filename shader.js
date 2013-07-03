@@ -55,15 +55,15 @@ THREE.TheScreenShader = {
         "    //col = max(vec4(0.1), col);",
             
         "    // grain",
-        "    float grain = hash( ( pos.x + hash(pos.y) ) * time ) * 0.3;",
+        "    float grain = hash( ( pos.x + hash(pos.y) ) * time ) * 0.2;",
         "    col += grain;",
                 
         "    // flickering",
-        "    float flicker = hash(time * 64.0) * 0.05;",
+        "    float flicker = hash(time * 64.0) * 0.08;",
         "    col += flicker;",
         
         "// vignette",
-        "vec2 t = 2.0 * ( pos - vec2( 0.5 ) );",
+        "vec2 t = 1.0 * ( pos - vec2( 0.5 ) );",
         
         "t *= t;",
         
@@ -81,17 +81,20 @@ THREE.TheScreenShader = {
         "vec4 col = vec4(0.0);",
         
         "// start off with a background",
-        "col.r += sin(time * 0.0 + 5.0);",
-        "col.g += sin(time * 0.0 + 5.0);",
-        "col.b += sin(time * 0.0 + 5.0);",
-        "col -= 0.7;",
-        "//col *= 0.1;",
+        "col += 0.2 + sin(time)*0.1;",
         
         "col = tv(col, pos);",
 
-        "vec4 screenCol = texture2D(tDiffuse, vUv);",
         
-        "gl_FragColor = vec4(screenCol.r + col.r, screenCol.g + col.g, screenCol.b + col.b, 1.0);",
+        "col.a = 1.0;",
+        
+        "vec4 screenCol = texture2D(tDiffuse, vUv);",
+        "float d = distance(pos, vec2(0.5, 0.5));",
+        "screenCol -= d*2.0;",
+        
+        "col *= d*2.2;",
+
+        "gl_FragColor = vec4(vec3(screenCol + col), 1.0);",
     "}	",
 
 	].join("\n")

@@ -158,16 +158,35 @@ function animate(){
 }
 
 var camPanSpeed = 0.5;
-var camPanStrength = 0.5;
+var camPanStrength = 2.0;
 
+var camTarget = new THREE.Vector3(0,0,0);
+var curCamTarget = new THREE.Vector3(0,0,0);
 function update(){
     var delta = clock.getDelta();
     var curTime = clock.getElapsedTime();
 
-    camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
-    camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+    //camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+    //camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+    
+    //controls.update();
 
-    controls.update();
+    camTarget.copy(ship.position);
+    camTarget.add(ship2.position);
+    var dist = ship.position.distanceTo(ship2.position);
+    camTarget.set(camTarget.x * 0.5, camTarget.y *0.5, camTarget.z * 0.5);
+
+    var dx = curCamTarget.x - camTarget.x;
+    var dy = curCamTarget.y - camTarget.y;
+    var dz = curCamTarget.z - camTarget.z;
+    
+    curCamTarget.set(curCamTarget.x - (dx*0.1), curCamTarget.y - (dy*0.1), curCamTarget.z - (dz*0.1))
+
+    var dist = (ship.position.distanceTo(ship2.position));
+    
+    camera.position.z = -dist - 2.0;
+
+    camera.lookAt(curCamTarget);
     
     if (shaderEnabled){
         effect.uniforms["time"].value = curTime;

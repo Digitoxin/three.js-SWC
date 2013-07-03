@@ -56,10 +56,9 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.position = new THREE.Vector3(this.spawnPoint.x, this.spawnPoint.y,0);
     this.velocity = new THREE.Vector3();
     this.rotation = 0;
-    this.accel = 0.0001;
+    this.accel = 0.0003;
     this.rotSpeed = 0.1;
-    this.maxVel = 0.01;
-    this.bulletShotSpeed = 0.02;
+    this.bulletShotSpeed = 0.03;
     this.timebetweenfiring = 1.0;
     this.timesincelastfire = 0;
     this.score = 0;
@@ -135,6 +134,8 @@ PlayerShip.prototype.update = function(delta){
 
     if (this.position.distanceTo(center) < sun.radius){
         this.onSpawn();
+        this.score -= 1;
+        updateScore();
     }
     
 }
@@ -183,11 +184,12 @@ PlayerShip.prototype.onFire = function(){
 PlayerShip.prototype.onSpawn = function(){
     this.position.set(this.spawnPoint.x, this.spawnPoint.y, 0);
     this.velocity.set(0,0,0);
+    this.rotation = 0;
 }
 
 PlayerShip.prototype.checkBulletsAgainst = function(ship){
     for (var i = 0; i < this.bullets.length; i++){
-        if (this.bullets[i].position.distanceTo(ship.position) < ship.scale){
+        if (this.bullets[i].position.distanceTo(ship.position) < ship.scale*2.0){
             ship.onSpawn();
             this.score += 1;
             updateScore();
