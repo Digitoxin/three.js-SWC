@@ -1,10 +1,12 @@
 "use strict"
 
 // 1 for 1:1 rendering, 2 for resolution/2 rendering, 0.5 for 2*resolution rendering (supersampling)...
-var sFactor = 2;
+var sFactor = 1;
 
 var WIDTH = window.innerWidth/sFactor;
 var HEIGHT = window.innerHeight/sFactor;
+
+var updatesPerSecond = 1.0 / 60.0;
 
 //var WIDTH = 512;
 //var HEIGHT = 240;
@@ -149,9 +151,18 @@ function onWindowResize() {
     renderer.setSize(WIDTH,HEIGHT)
 }
 
+var frameCounter = 0;
+
+var delta;
 function animate(){
+    delta = clock.getDelta();
     requestAnimationFrame(animate);
-    update();
+    while (frameCounter > updatesPerSecond){
+        update();
+        frameCounter -= updatesPerSecond;
+    }
+    frameCounter += delta;
+
     render();
 
     stats.update();
@@ -163,7 +174,6 @@ var camPanStrength = 2.0;
 var camTarget = new THREE.Vector3(0,0,0);
 var curCamTarget = new THREE.Vector3(0,0,0);
 function update(){
-    var delta = clock.getDelta();
     var curTime = clock.getElapsedTime();
 
     //camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
@@ -180,11 +190,12 @@ function update(){
     var dy = curCamTarget.y - camTarget.y;
     var dz = curCamTarget.z - camTarget.z;
     
-    curCamTarget.set(curCamTarget.x - (dx*0.1), curCamTarget.y - (dy*0.1), curCamTarget.z - (dz*0.1))
+    curCamTarget.set(curCamTarget.x - (dx*0.1), curCamTarget.y - (dy*0.1), curCamTarget.z - (dz*0.1));
 
-    var dist = (ship.position.distanceTo(ship2.position));
+    var targetDist = -2.0 - dist*0.3;
+    var distFrTarget = camera.position.z - targetDist;
     
-    camera.position.z = -dist - 2.0;
+    camera.position.z = camera.position.z - (distFrTarget*0.1);
 
     camera.lookAt(curCamTarget);
     
