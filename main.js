@@ -172,15 +172,15 @@ function animate(){
 }
 
 var camPanSpeed = 0.5;
-var camPanStrength = 2.0;
+var camPanStrength = 1.0;
 
 var camTarget = new THREE.Vector3(0,0,0);
 var curCamTarget = new THREE.Vector3(0,0,0);
 function update(){
     var curTime = clock.getElapsedTime();
 
-    //camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
-    //camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+    camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+    camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
     
     //controls.update();
 
@@ -192,13 +192,15 @@ function update(){
     var dx = curCamTarget.x - camTarget.x;
     var dy = curCamTarget.y - camTarget.y;
     var dz = curCamTarget.z - camTarget.z;
-    
-    curCamTarget.set(curCamTarget.x - (dx*0.1), curCamTarget.y - (dy*0.1), curCamTarget.z - (dz*0.1));
 
-    var targetDist = -2.0 - dist*0.3;
+    var easeFactor = 0.06;
+    
+    curCamTarget.set(curCamTarget.x - (dx*easeFactor), curCamTarget.y - (dy*easeFactor), curCamTarget.z - (dz*easeFactor));
+
+    var targetDist = -2.0 - dist*0.5;
     var distFrTarget = camera.position.z - targetDist;
     
-    camera.position.z = camera.position.z - (distFrTarget*0.1);
+    camera.position.z = camera.position.z - (distFrTarget*easeFactor);
 
     camera.lookAt(curCamTarget);
     
