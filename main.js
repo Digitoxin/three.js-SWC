@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 // 1 for 1:1 rendering, 2 for resolution/2 rendering, 0.5 for 2*resolution rendering (supersampling)...
 var sFactor = 1;
@@ -25,11 +25,6 @@ var composer, effect;
 var ship, ship2, sun;
 
 var scoreText;
-
-window.onload = function(){
-    init();
-    animate();
-}
 
 var gridMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
 function MakeGrid(planeW, planeH, numW, numH){
@@ -91,8 +86,8 @@ function init(){
     ship = new PlayerShip(
                 0.03,
                 {up:"W", left:"A", right:"D",fire:"S"},
-                [Math.random(), 1,.5],
-                [Math.random(), 1,.5]);
+                [Math.random(), 1, 0.5],
+                [Math.random(), 1, 0.5]);
 
     ship.position.x = 0.75;
     ship.position.y = 0.75;
@@ -100,8 +95,8 @@ function init(){
     ship2 = new PlayerShip(
                 0.03,
                 {up:"up", left:"left", right:"right", fire:"down"},
-                [Math.random(), 1,.5],
-                [Math.random(), 1,.5]);
+                [ship2Opts.hue1/255, ship2Opts.sat1/100,ship2Opts.lit1/100],
+                [ship2Opts.hue2/255, ship2Opts.sat2/100,ship2Opts.lit2/100]);
 
     ship2.position.x = -0.75;
     ship2.position.y = -0.75;
@@ -120,14 +115,15 @@ function init(){
         composer.addPass(e);
     } else {
         effect = new THREE.ShaderPass( THREE.TheScreenShader );
-        effect.uniforms["resolution"].value.x = WIDTH;
-        effect.uniforms["resolution"].value.y = HEIGHT;
+        effect.uniforms.resolution.value.x = WIDTH;
+        effect.uniforms.resolution.value.y = HEIGHT;
         effect.renderToScreen = true;
         composer.addPass( effect );
     }
     window.addEventListener("resize", onWindowResize, false);
 
-    scoreText = document.getElementById("scoretext");
+    scoreText = document.createElement("div");
+    scoreText.id = "scoreText";
     updateScore();
 }
 
@@ -138,8 +134,9 @@ function updateScore(){
 function onWindowResize() {
     WIDTH = window.innerWidth/sFactor;
     HEIGHT = window.innerHeight/sFactor;
+    RATIO = WIDTH/HEIGHT;
 
-    camera.aspect = WIDTH/HEIGHT;
+    camera.aspect = RATIO;
     camera.updateProjectionMatrix();
 
     if (shaderEnabled){
@@ -201,14 +198,16 @@ function update(){
     var distFrTarget = camera.position.z - targetDist;
     
     camera.position.z = camera.position.z - (distFrTarget*easeFactor);
+    camera.fov = 25 + 10 * dist;
+    camera.updateProjectionMatrix();
 
     camera.lookAt(curCamTarget);
     
     if (shaderEnabled){
-        effect.uniforms["time"].value = curTime;
+        effect.uniforms.time.value = curTime;
     }
     
-    sunShader.uniforms["time"].value = curTime;
+    sunShader.uniforms.time.value = curTime;
 
     sunShader.uniforms.amplitude.value = Math.sin(curTime*3);
 

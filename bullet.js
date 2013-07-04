@@ -51,8 +51,8 @@ BasicBullet.prototype.update = function(delta){
     if (this.position.y < -1){
         this.position.y = 1;
     } 
-}
+};
 
 BasicBullet.prototype.exit = function(){
     scene.remove(this.mesh);
-}
+};
