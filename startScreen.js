@@ -1,6 +1,3 @@
-
-//TODO: color selection is fucked up. Reimplement with a proper 3d preview
-
 window.onload = function(){
     initMenu();
 };

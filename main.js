@@ -1,12 +1,14 @@
 "use strict";
 
 // 1 for 1:1 rendering, 2 for resolution/2 rendering, 0.5 for 2*resolution rendering (supersampling)...
-var sFactor = 1;
+var sFactor = 2;
 
 var WIDTH = window.innerWidth/sFactor;
 var HEIGHT = window.innerHeight/sFactor;
 
 var updatesPerSecond = 1.0 / 60.0;
+
+var statsOn = false;
 
 //var WIDTH = 512;
 //var HEIGHT = 240;
@@ -24,8 +26,6 @@ var composer, effect;
 
 var ship, ship2, sun;
 
-var scoreText;
-
 var gridMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
 function MakeGrid(planeW, planeH, numW, numH){
     var plane = new THREE.Mesh(
@@ -35,8 +35,35 @@ function MakeGrid(planeW, planeH, numW, numH){
     scene.add(plane);
 }
 
-function createPlayerScoreTexts(){
+var ship1ScoreText, ship2ScoreText;
 
+function createPlayerScoreTexts(){
+    ship1ScoreText = document.createElement("div");
+    ship2ScoreText = document.createElement("div");
+    
+    ship1ScoreText.style.color = HSL2CSS(ship1Opts.hue1, ship1Opts.sat1, ship1Opts.lit1);
+    ship2ScoreText.style.color = HSL2CSS(ship2Opts.hue1, ship2Opts.sat1, ship2Opts.lit1);
+
+    ship1ScoreText.style.position = "fixed";
+    ship1ScoreText.style.top = "0%";
+
+
+    ship2ScoreText.style.position = "fixed";
+    ship2ScoreText.style.top = "0%";
+    ship2ScoreText.style.right = "0%";
+
+    ship1ScoreText.style.fontSize = "24px";
+    ship2ScoreText.style.fontSize = "24px";
+
+    document.body.appendChild(ship1ScoreText);
+    document.body.appendChild(ship2ScoreText);
+
+    updatePlayerScoreTexts();
+}
+
+function updatePlayerScoreTexts(){
+    ship1ScoreText.textContent = ship1Opts.name + ": " + ship.score;
+    ship2ScoreText.textContent = ship2Opts.name + ": " + ship2.score;
 }
 
 function init(){
@@ -55,12 +82,14 @@ function init(){
     camera.position.z = -2.6;
 
     keyboard = new THREEx.KeyboardState();
-
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    container.appendChild( stats.domElement );
     
+    if (statsOn){
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        container.appendChild( stats.domElement );
+    }
+
     controls = new THREE.TrackballControls(camera);
 
     controls.rotateSpeed = 1.0;
@@ -74,6 +103,7 @@ function init(){
 
     scene = new THREE.Scene();
     scene.add(camera);
+
         
     var pointLight = new THREE.PointLight(0xffffff,1.0,100.0);
     pointLight.position = camera.position;
@@ -110,7 +140,6 @@ function init(){
     composer.addPass( new THREE.RenderPass( scene, camera ) );
     composer.setSize(WIDTH, HEIGHT);
     
-    // comment when enabling shaders
     if (!shaderEnabled){
         var e = new THREE.ShaderPass( THREE.CopyShader );
         e.renderToScreen = true;
@@ -124,13 +153,7 @@ function init(){
     }
     window.addEventListener("resize", onWindowResize, false);
 
-    scoreText = document.createElement("div");
-    scoreText.id = "scoreText";
-    updateScore();
-}
-
-function updateScore(){
-    scoreText.textContent = "Score: " + ship.score + " - " + ship2.score;
+    createPlayerScoreTexts();
 }
 
 function onWindowResize() {
@@ -175,8 +198,10 @@ function animate(){
     }
     
     render();
-
-    stats.update();
+    
+    if (statsOn){
+        stats.update();
+    }
     
     requestAnimationFrame(animate);
 }

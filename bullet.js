@@ -3,7 +3,7 @@ function BasicBullet(color){
     this.segments = 6;
     this.rings = 4;
 
-    this.lifetime = 100;
+    this.lifetime = 120;
 
     this.position = new THREE.Vector3(0,0,0);
     this.velocity = new THREE.Vector3(0,0,0);

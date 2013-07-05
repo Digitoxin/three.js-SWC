@@ -59,7 +59,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.accel = 0.0003;
     this.rotSpeed = 0.1;
     this.bulletShotSpeed = 0.03;
-    this.timebetweenfiring = 30;
+    this.timebetweenfiring = 45;
     this.timesincelastfire = 0;
     this.score = 0;
 
@@ -134,8 +134,9 @@ PlayerShip.prototype.update = function(){
 
     if (this.position.distanceTo(center) < sun.radius){
         this.onSpawn();
-        this.score -= 1;
-        updateScore();
+        if (this.score > 0){
+            this.score -= 1;
+        }
     }
 
 };
@@ -185,6 +186,7 @@ PlayerShip.prototype.onSpawn = function(){
     this.position.set(this.spawnPoint.x, this.spawnPoint.y, 0);
     this.velocity.set(0,0,0);
     this.rotation = 0;
+    updatePlayerScoreTexts();
 };
 
 PlayerShip.prototype.checkBulletsAgainst = function(ship){
@@ -192,9 +194,11 @@ PlayerShip.prototype.checkBulletsAgainst = function(ship){
         if (this.bullets[i].position.distanceTo(ship.position) < ship.scale*2.0){
             this.bullets[i].exit();
             this.bullets.splice(i, 1);
-            ship.onSpawn();
+            
             this.score += 1;
-            updateScore();
+            
+            ship.onSpawn();
+            
         }
     }
 };
