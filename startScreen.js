@@ -1,4 +1,6 @@
 
+//TODO: color selection is fucked up. Reimplement with a proper 3d preview
+
 window.onload = function(){
     initMenu();
 };
@@ -10,7 +12,7 @@ function getRandomInt(min, max){
 var startButton;
 var gui, ship1GUI, ship2GUI;
 var guiContainer;
-var huemin = 0, huemax = 255, satmin = 0, satmax = 100, litmin = 25, litmax = 75;
+var huemin = 0, huemax = 360, satmin = 0, satmax = 100, litmin = 25, litmax = 100;
 var opts = function(){ this.name = "Player"; 
     this.hue1 = getRandomInt(huemin, huemax); this.sat1 = getRandomInt(satmin, satmax); this.lit1 = getRandomInt(litmin, litmax);
     this.hue2 = getRandomInt(huemin, huemax); this.sat2 = getRandomInt(satmin, satmax); this.lit2 = getRandomInt(litmin, litmax);};
@@ -34,10 +36,12 @@ function HSL2CSS(h,s,l){
 }
 
 function makeShadowCol(col){
-    return "3px 3px 3px " + col + ", " +
-        "-3px -3px 3px " + col + ", " +
-        "-3px 3px 3px " + col + ", " +
-        "3px -3px 3px " + col;
+    /*return "3px 3px 0px " + col + ", " +
+        "-3px -3px 0px " + col + ", " +
+        "-3px 3px 0px " + col + ", " +
+        "3px -3px 0px " + col;*/
+
+    return col + " 3px 3px 1px, " + col + " -3px -3px 1px";
 
 }
 
@@ -46,15 +50,14 @@ function createColPreviews(){
     ship1Name.textContent = ship1Opts.name;
     
     var col = HSL2CSS(ship1Opts.hue2, ship1Opts.sat2, ship1Opts.lit2);
-    ship1Name.style.textShadow = makeShadowCol(col);
+    ship1Name.style.backgroundColor = col;
+    ship1Name.style.border = "1px solid white";
+    ship1Name.style.position = "relative";
 
     document.body.appendChild(ship1Name);
 
     ship2Name = document.createElement("h1");
     ship2Name.textContent = ship2Opts.name;
-    
-    col = HSL2CSS(ship2Opts.hue2, ship2Opts.sat2, ship2Opts.lit2);
-    ship2Name.style.textShadow = makeShadowCol(col);
     
     document.body.appendChild(ship2Name);
     
@@ -62,16 +65,18 @@ function createColPreviews(){
 }
 
 function onGUIChange(){
-    ship1Name.textContent = ship1Opts.name;
-    ship2Name.textContent = ship2Opts.name;
-
-    ship1Name.style.color = HSL2CSS(ship1Opts.hue1, ship1Opts.sat1, ship1Opts.lit1);
-    ship2Name.style.color = HSL2CSS(ship2Opts.hue1, ship2Opts.sat1, ship2Opts.lit1);
-
+    ship1Name.textContent = ship1Opts.name + " (WASD)";
+    ship2Name.textContent = ship2Opts.name + " (UDLR)";
+    
     var col = HSL2CSS(ship1Opts.hue2, ship1Opts.sat2, ship1Opts.lit2);
-    ship1Name.style.textShadow = makeShadowCol(col);
+    ship1Name.style.color = col;
     col = HSL2CSS(ship2Opts.hue2, ship2Opts.sat2, ship2Opts.lit2);
-    ship2Name.style.textShadow = makeShadowCol(col);
+    ship2Name.style.color = col;
+
+    col = HSL2CSS(ship1Opts.hue1, ship1Opts.sat1, ship1Opts.lit1);
+    ship1Name.style.backgroundColor = col;
+    col = HSL2CSS(ship2Opts.hue1, ship2Opts.sat1, ship2Opts.lit1);
+    ship2Name.style.backgroundColor = col;
 
 }
 

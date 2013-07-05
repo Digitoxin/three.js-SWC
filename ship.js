@@ -37,7 +37,7 @@ function createShipMesh(scale, primaryColor, secondaryColor){
 
     var shipMesh = new THREE.Mesh( shipGeometry, shipMaterial );
 
-    return shipMesh
+    return shipMesh;
 }
 
 function PlayerShip(scale, controls, primaryColor, secondaryColor){
@@ -59,7 +59,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.accel = 0.0003;
     this.rotSpeed = 0.1;
     this.bulletShotSpeed = 0.03;
-    this.timebetweenfiring = 1.0;
+    this.timebetweenfiring = 30;
     this.timesincelastfire = 0;
     this.score = 0;
 
@@ -71,9 +71,9 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
 var center = new THREE.Vector3(0,0,0);
 var gravForce = 0.007;
 
-PlayerShip.prototype.update = function(delta){
+PlayerShip.prototype.update = function(){
 
-    this.updateBullets(delta);
+    this.updateBullets();
 
     if (keyboard.pressed(this.controls["fire"])){
         if (this.timesincelastfire > this.timebetweenfiring){
@@ -82,7 +82,7 @@ PlayerShip.prototype.update = function(delta){
         }
     }
     
-    this.timesincelastfire += delta;
+    this.timesincelastfire += 1;
 
     if (keyboard.pressed(this.controls["up"])){
         this.onAccel();
@@ -115,7 +115,7 @@ PlayerShip.prototype.update = function(delta){
     this.mesh.position.set(
             this.position.x,
             this.position.y,
-            this.position.z)
+            this.position.z);
 
     this.mesh.rotation.set(0, 0, this.rotation);
 
@@ -137,21 +137,21 @@ PlayerShip.prototype.update = function(delta){
         this.score -= 1;
         updateScore();
     }
-    
-}
+
+};
 
 PlayerShip.prototype.onAccel = function(){
     this.velocity.x += Math.cos(this.rotation+90*Math.PI/180)*this.accel;
     this.velocity.y += Math.sin(this.rotation+90*Math.PI/180)*this.accel;
-}
+};
 
-PlayerShip.prototype.updateBullets = function(delta){
+PlayerShip.prototype.updateBullets = function(){
     for (var i = 0; i < this.bullets.length; i++){
-        this.bullets[i].update(delta);
+        this.bullets[i].update();
     }
     
     this.deleteBullets();
-}
+};
 
 PlayerShip.prototype.deleteBullets = function(){
     for (var i = 0; i < this.bullets.length; i++){
@@ -165,7 +165,7 @@ PlayerShip.prototype.deleteBullets = function(){
             this.deleteBullets();
         }
     }
-}
+};
 
 PlayerShip.prototype.onFire = function(){
     var bullet = new BasicBullet(this.primCol);
@@ -179,20 +179,22 @@ PlayerShip.prototype.onFire = function(){
 
     this.bullets.push(bullet);
     
-}
+};
 
 PlayerShip.prototype.onSpawn = function(){
     this.position.set(this.spawnPoint.x, this.spawnPoint.y, 0);
     this.velocity.set(0,0,0);
     this.rotation = 0;
-}
+};
 
 PlayerShip.prototype.checkBulletsAgainst = function(ship){
     for (var i = 0; i < this.bullets.length; i++){
         if (this.bullets[i].position.distanceTo(ship.position) < ship.scale*2.0){
+            this.bullets[i].exit();
+            this.bullets.splice(i, 1);
             ship.onSpawn();
             this.score += 1;
             updateScore();
         }
     }
-}
+};

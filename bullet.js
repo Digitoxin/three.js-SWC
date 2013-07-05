@@ -3,7 +3,7 @@ function BasicBullet(color){
     this.segments = 6;
     this.rings = 4;
 
-    this.lifetime = 2;
+    this.lifetime = 100;
 
     this.position = new THREE.Vector3(0,0,0);
     this.velocity = new THREE.Vector3(0,0,0);
@@ -23,8 +23,8 @@ function BasicBullet(color){
     scene.add(this.mesh);
 }
 
-BasicBullet.prototype.update = function(delta){
-    this.lifetime -= delta;
+BasicBullet.prototype.update = function(){
+    this.lifetime -= 1;
     
     this.position.set(this.position.x + this.velocity.x, this.position.y + this.velocity.y, 0);
 

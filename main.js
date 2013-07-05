@@ -35,6 +35,10 @@ function MakeGrid(planeW, planeH, numW, numH){
     scene.add(plane);
 }
 
+function createPlayerScoreTexts(){
+
+}
+
 function init(){
     container = document.getElementById( 'container' );
     document.body.appendChild( container );
@@ -70,7 +74,6 @@ function init(){
 
     scene = new THREE.Scene();
     scene.add(camera);
-    
         
     var pointLight = new THREE.PointLight(0xffffff,1.0,100.0);
     pointLight.position = camera.position;
@@ -86,8 +89,8 @@ function init(){
     ship = new PlayerShip(
                 0.03,
                 {up:"W", left:"A", right:"D",fire:"S"},
-                [Math.random(), 1, 0.5],
-                [Math.random(), 1, 0.5]);
+                [(ship1Opts.hue1)/360, ship1Opts.sat1/100,ship1Opts.lit1/100],
+                [ship1Opts.hue2/360, ship1Opts.sat2/100,ship1Opts.lit2/100]);
 
     ship.position.x = 0.75;
     ship.position.y = 0.75;
@@ -95,14 +98,13 @@ function init(){
     ship2 = new PlayerShip(
                 0.03,
                 {up:"up", left:"left", right:"right", fire:"down"},
-                [ship2Opts.hue1/255, ship2Opts.sat1/100,ship2Opts.lit1/100],
-                [ship2Opts.hue2/255, ship2Opts.sat2/100,ship2Opts.lit2/100]);
+                [ship2Opts.hue1/360, ship2Opts.sat1/100,ship2Opts.lit1/100],
+                [ship2Opts.hue2/360, ship2Opts.sat2/100,ship2Opts.lit2/100]);
 
     ship2.position.x = -0.75;
     ship2.position.y = -0.75;
 
     ship2.spawnPoint.set(-0.75, -0.75);
-
 
     composer = new THREE.EffectComposer( renderer );
     composer.addPass( new THREE.RenderPass( scene, camera ) );
@@ -144,28 +146,39 @@ function onWindowResize() {
         effect.uniforms["resolution"].value.y = HEIGHT;
     }
 
-    composer.setSize(WIDTH,HEIGHT)
-    renderer.setSize(WIDTH,HEIGHT)
+    composer.setSize(WIDTH,HEIGHT);
+    renderer.setSize(WIDTH,HEIGHT);
 }
 
-var timeCounter = 0;
+var curTime = 0, fDelta = 0;
 
-var delta;
+var ct = 0;
+
 function animate(){
-    requestAnimationFrame(animate);
     
-    var oDelta = clock.getDelta();
-    delta = oDelta / (timeCounter / updatesPerSecond);
-    while (timeCounter > updatesPerSecond){
+    fDelta = clock.getDelta();
+    curTime += fDelta;
+    
+    ct += fDelta;
+
+    while (ct > updatesPerSecond){
         update();
-        timeCounter -= updatesPerSecond;
+        ct -= updatesPerSecond;
     }
+
+    sunShader.uniforms.time.value = curTime;
+
+    sunShader.uniforms.amplitude.value = Math.sin(curTime*10);
     
-    timeCounter += oDelta;
+    if (shaderEnabled){
+        effect.uniforms.time.value = curTime;
+    }
     
     render();
 
     stats.update();
+    
+    requestAnimationFrame(animate);
 }
 
 var camPanSpeed = 0.5;
@@ -173,11 +186,10 @@ var camPanStrength = 1.0;
 
 var camTarget = new THREE.Vector3(0,0,0);
 var curCamTarget = new THREE.Vector3(0,0,0);
-function update(){
+function update(aDelta){
     var curTime = clock.getElapsedTime();
-
-    camera.position.x = Math.sin(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
-    camera.position.y = Math.cos(clock.getElapsedTime()*camPanSpeed)*camPanStrength;
+    camera.position.x = Math.sin(curTime*camPanSpeed)*camPanStrength;
+    camera.position.y = Math.cos(curTime*camPanSpeed)*camPanStrength;
     
     //controls.update();
 
@@ -202,17 +214,9 @@ function update(){
     camera.updateProjectionMatrix();
 
     camera.lookAt(curCamTarget);
-    
-    if (shaderEnabled){
-        effect.uniforms.time.value = curTime;
-    }
-    
-    sunShader.uniforms.time.value = curTime;
 
-    sunShader.uniforms.amplitude.value = Math.sin(curTime*3);
-
-    ship.update(delta);
-    ship2.update(delta);
+    ship.update();
+    ship2.update();
 
     ship.checkBulletsAgainst(ship2);
     ship2.checkBulletsAgainst(ship);
