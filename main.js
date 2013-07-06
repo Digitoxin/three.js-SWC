@@ -1,7 +1,7 @@
 "use strict";
 
 // 1 for 1:1 rendering, 2 for resolution/2 rendering, 0.5 for 2*resolution rendering (supersampling)...
-var sFactor = 2;
+var sFactor = 1;
 
 var WIDTH = window.innerWidth/sFactor;
 var HEIGHT = window.innerHeight/sFactor;
@@ -47,13 +47,12 @@ function createPlayerScoreTexts(){
     ship1ScoreText.style.position = "fixed";
     ship1ScoreText.style.top = "0%";
 
-
     ship2ScoreText.style.position = "fixed";
     ship2ScoreText.style.top = "0%";
     ship2ScoreText.style.right = "0%";
 
-    ship1ScoreText.style.fontSize = "24px";
-    ship2ScoreText.style.fontSize = "24px";
+    ship1ScoreText.style.fontSize = "32px";
+    ship2ScoreText.style.fontSize = "32px";
 
     document.body.appendChild(ship1ScoreText);
     document.body.appendChild(ship2ScoreText);
@@ -165,8 +164,8 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
 
     if (shaderEnabled){
-        effect.uniforms["resolution"].value.x = WIDTH;
-        effect.uniforms["resolution"].value.y = HEIGHT;
+        effect.uniforms.resolution.value.x = WIDTH;
+        effect.uniforms.resolution.value.y = HEIGHT;
     }
 
     composer.setSize(WIDTH,HEIGHT);
@@ -211,12 +210,19 @@ var camPanStrength = 1.0;
 
 var camTarget = new THREE.Vector3(0,0,0);
 var curCamTarget = new THREE.Vector3(0,0,0);
-function update(aDelta){
+function update(){
+    
+    if (ship.score >= genOpts.winScore){
+        console.log(ship1Opts.name + " WINS!");
+    }
+
+    if (ship2.score >= genOpts.winScore){
+        console.log(ship2Opts.name + " WINS!");
+    }
+
     var curTime = clock.getElapsedTime();
     camera.position.x = Math.sin(curTime*camPanSpeed)*camPanStrength;
     camera.position.y = Math.cos(curTime*camPanSpeed)*camPanStrength;
-    
-    //controls.update();
 
     camTarget.copy(ship.position);
     camTarget.add(ship2.position);
@@ -235,7 +241,7 @@ function update(aDelta){
     var distFrTarget = camera.position.z - targetDist;
     
     camera.position.z = camera.position.z - (distFrTarget*easeFactor);
-    camera.fov = 25 + 10 * dist;
+    camera.fov = 20 + 10 * dist;
     camera.updateProjectionMatrix();
 
     camera.lookAt(curCamTarget);

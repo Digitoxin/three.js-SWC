@@ -56,12 +56,13 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.position = new THREE.Vector3(this.spawnPoint.x, this.spawnPoint.y,0);
     this.velocity = new THREE.Vector3();
     this.rotation = 0;
-    this.accel = 0.0003;
+    this.accel = 0.00025;
     this.rotSpeed = 0.1;
-    this.bulletShotSpeed = 0.03;
+    this.bulletShotSpeed = 0.02;
     this.timebetweenfiring = 45;
     this.timesincelastfire = 0;
     this.score = 0;
+    this.maxVel = 0.1;
 
     this.bullets = [];
 
@@ -92,13 +93,14 @@ PlayerShip.prototype.update = function(){
     gravVec.copy(this.position);
     gravVec.normalize();
     
-    //this.velocity.x = clamp(-this.maxVel, this.velocity.x, this.maxVel);
-    //this.velocity.y = clamp(-this.maxVel, this.velocity.y, this.maxVel);
-    
+       
     var distance = (this.position.x === 0 && this.position.y === 0) ? 0.00000000000001 : center.distanceTo(this.position);
     
     this.velocity.x += (-gravVec.x * gravForce) / (distance*100);
     this.velocity.y += (-gravVec.y * gravForce) / (distance*100);
+    
+    this.velocity.x = clamp(-this.maxVel, this.velocity.x, this.maxVel);
+    this.velocity.y = clamp(-this.maxVel, this.velocity.y, this.maxVel);
 
     if (keyboard.pressed(this.controls["left"])){
         this.rotation -= this.rotSpeed;
@@ -171,6 +173,8 @@ PlayerShip.prototype.deleteBullets = function(){
 PlayerShip.prototype.onFire = function(){
     var bullet = new BasicBullet(this.primCol);
     bullet.position.copy(this.position);
+    bullet.position.x += Math.cos(this.rotation+90*Math.PI/180)*this.scale*2;
+    bullet.position.y += Math.sin(this.rotation+90*Math.PI/180)*this.scale*2;
 
     bullet.velocity.set(
             Math.cos(this.rotation+90*Math.PI/180)*this.bulletShotSpeed + this.velocity.x,

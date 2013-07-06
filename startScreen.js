@@ -16,6 +16,8 @@ var opts = function(){ this.name = "Player";
 var ship1Opts = new opts(),
     ship2Opts = new opts();
 
+var genOpts = {winScore: 3};
+
 var ship1Name, ship2Name;
 
 ship1Opts.name = "Player 1";
@@ -89,6 +91,7 @@ function createStartButton(){
 
 function createShipGUIs(){
     gui = new dat.GUI({ autoPlace: false });
+    gui.add(genOpts, "winScore", 1, 10).step(1);
     
     gui.domElement.style.position = "relative";
     gui.domElement.style.top = "150px";

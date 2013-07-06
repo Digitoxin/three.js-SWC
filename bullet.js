@@ -8,7 +8,7 @@ function BasicBullet(color){
     this.position = new THREE.Vector3(0,0,0);
     this.velocity = new THREE.Vector3(0,0,0);
 
-    this.gravityFactor = 0.0005;
+    this.gravityFactor = 0.0003;
 
     this.mesh = new THREE.Mesh(
             new THREE.SphereGeometry(
