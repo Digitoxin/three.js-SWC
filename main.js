@@ -1,7 +1,7 @@
 "use strict";
 
 // 1 for 1:1 rendering, 2 for resolution/2 rendering, 0.5 for 2*resolution rendering (supersampling)...
-var sFactor = 1;
+var sFactor = 2;
 
 var WIDTH = window.innerWidth/sFactor;
 var HEIGHT = window.innerHeight/sFactor;
