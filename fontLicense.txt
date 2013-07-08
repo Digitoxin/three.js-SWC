@@ -1,3 +1,4 @@
+(Applies to the bundled font)
 Copyright (c) 2011, Cody "CodeMan38" Boisclair (cody@zone38.net),
 with Reserved Font Name "Press Start".
 
