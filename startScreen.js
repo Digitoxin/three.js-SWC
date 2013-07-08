@@ -34,30 +34,23 @@ function HSL2CSS(h,s,l){
     return "hsl(" + h + ", " + s + "%, " + l + "%)";
 }
 
-function makeShadowCol(col){
-    /*return "3px 3px 0px " + col + ", " +
-        "-3px -3px 0px " + col + ", " +
-        "-3px 3px 0px " + col + ", " +
-        "3px -3px 0px " + col;*/
-
-    return col + " 3px 3px 1px, " + col + " -3px -3px 1px";
-
-}
-
 function createColPreviews(){
-    ship1Name = document.createElement("h1");
+    ship1Name = document.createElement("p");
     ship1Name.textContent = ship1Opts.name;
-    
-    var col = HSL2CSS(ship1Opts.hue2, ship1Opts.sat2, ship1Opts.lit2);
-    ship1Name.style.backgroundColor = col;
-    ship1Name.style.border = "1px solid white";
-    ship1Name.style.position = "relative";
+    ship1Name.style.fontFamily = "press_start_2pregular";
+    ship1Name.style.width = "30%";
+    ship1Name.style.borderStyle = "solid";
+    ship1Name.style.borderWidth = "4px";
 
     document.body.appendChild(ship1Name);
 
-    ship2Name = document.createElement("h1");
+    ship2Name = document.createElement("p");
     ship2Name.textContent = ship2Opts.name;
-    
+    ship2Name.style.fontFamily = "press_start_2pregular";
+    ship2Name.style.width = "30%";
+    ship2Name.style.borderStyle = "solid";
+    ship2Name.style.borderWidth = "4px";
+
     document.body.appendChild(ship2Name);
     
     onGUIChange();
@@ -74,8 +67,10 @@ function onGUIChange(){
 
     col = HSL2CSS(ship1Opts.hue1, ship1Opts.sat1, ship1Opts.lit1);
     ship1Name.style.backgroundColor = col;
+    ship1Name.style.borderColor = col;
     col = HSL2CSS(ship2Opts.hue1, ship2Opts.sat1, ship2Opts.lit1);
     ship2Name.style.backgroundColor = col;
+    ship2Name.style.borderColor = col;
 
 }
 

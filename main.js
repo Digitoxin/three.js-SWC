@@ -51,8 +51,11 @@ function createPlayerScoreTexts(){
     ship2ScoreText.style.top = "0%";
     ship2ScoreText.style.right = "0%";
 
-    ship1ScoreText.style.fontSize = "32px";
-    ship2ScoreText.style.fontSize = "32px";
+    ship1ScoreText.style.fontSize = "16px";
+    ship2ScoreText.style.fontSize = "16px";
+
+    ship1ScoreText.style.fontFamily = "press_start_2pregular";
+    ship2ScoreText.style.fontFamily = "press_start_2pregular";
 
     document.body.appendChild(ship1ScoreText);
     document.body.appendChild(ship2ScoreText);
@@ -153,6 +156,9 @@ function init(){
     window.addEventListener("resize", onWindowResize, false);
 
     createPlayerScoreTexts();
+
+    update();
+
 }
 
 function onWindowResize() {
@@ -176,18 +182,59 @@ var curTime = 0, fDelta = 0;
 
 var ct = 0;
 
-function animate(){
-    
-    fDelta = clock.getDelta();
-    curTime += fDelta;
-    
-    ct += fDelta;
+var upFunc = countDown;
 
+function gameUpdate(){
+    ct += fDelta;
     while (ct > updatesPerSecond){
         update();
         ct -= updatesPerSecond;
     }
+}
 
+function countDown(){
+    if (curTime > 3){
+        upFunc = gameUpdate;
+    }
+}
+
+function onGameOver(){
+    upFunc = function(){};
+
+    var winText;
+    var col1, col2;
+    if (ship.score >= genOpts.winScore){
+        winText = ship1Opts.name + " Wins!";
+        col1 = HSL2CSS(ship1Opts.hue1, ship1Opts.sat1, ship1Opts.lit1);
+        col2 = HSL2CSS(ship1Opts.hue2, ship1Opts.sat2, ship1Opts.lit2);
+    } else {
+        winText = ship2Opts.name + " Wins!";
+        col1 = HSL2CSS(ship2Opts.hue1, ship2Opts.sat1, ship2Opts.lit1);
+        col2 = HSL2CSS(ship2Opts.hue2, ship2Opts.sat2, ship2Opts.lit2);
+    }
+
+    var gameWinText = document.createElement("h1");
+
+    gameWinText.textContent = winText;
+    
+    gameWinText.style.position = "fixed";
+    gameWinText.style.top = "50%";
+    gameWinText.style.left = "40%";
+    gameWinText.style.color = col1;
+    //gameWinText.style.backgroundColor = col2;
+    gameWinText.style.fontFamily = "press_start_2pregular";
+
+    document.body.appendChild(gameWinText);
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+    
+    fDelta = clock.getDelta();
+    curTime += fDelta;
+    
+    upFunc();
+    
     sunShader.uniforms.time.value = curTime;
 
     sunShader.uniforms.amplitude.value = Math.sin(curTime*10);
@@ -202,7 +249,6 @@ function animate(){
         stats.update();
     }
     
-    requestAnimationFrame(animate);
 }
 
 var camPanSpeed = 0.5;
@@ -212,12 +258,9 @@ var camTarget = new THREE.Vector3(0,0,0);
 var curCamTarget = new THREE.Vector3(0,0,0);
 function update(){
     
-    if (ship.score >= genOpts.winScore){
-        console.log(ship1Opts.name + " WINS!");
-    }
-
-    if (ship2.score >= genOpts.winScore){
-        console.log(ship2Opts.name + " WINS!");
+    if (ship.score >= genOpts.winScore || ship2.score >= genOpts.winScore){
+        onGameOver();
+        return;
     }
 
     var curTime = clock.getElapsedTime();
@@ -251,6 +294,7 @@ function update(){
 
     ship.checkBulletsAgainst(ship2);
     ship2.checkBulletsAgainst(ship);
+
 }
 
 function render(){
