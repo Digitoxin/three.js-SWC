@@ -38,7 +38,7 @@ function createColPreviews(){
     ship1Name = document.createElement("p");
     ship1Name.textContent = ship1Opts.name;
     ship1Name.style.fontFamily = "press_start_2pregular";
-    ship1Name.style.width = "30%";
+    ship1Name.style.width = "400px";
     ship1Name.style.borderStyle = "solid";
     ship1Name.style.borderWidth = "4px";
 
@@ -47,7 +47,7 @@ function createColPreviews(){
     ship2Name = document.createElement("p");
     ship2Name.textContent = ship2Opts.name;
     ship2Name.style.fontFamily = "press_start_2pregular";
-    ship2Name.style.width = "30%";
+    ship2Name.style.width = "400px";
     ship2Name.style.borderStyle = "solid";
     ship2Name.style.borderWidth = "4px";
 
