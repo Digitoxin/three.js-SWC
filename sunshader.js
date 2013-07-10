@@ -145,10 +145,11 @@ THREE.SunShader = {
 
             "color += pnoise( position*6.0+time, resolution.xy );",
 
-
             "color += sin(time*10.0)*0.1;",
+
+            "color += 0.3;",
             
-			"gl_FragColor = vec4(color*0.8+(sin(time)*0.2), color*0.8+(sin(time)*0.2), color * 0.3, 1.0);",
+			"gl_FragColor = vec4(color+(sin(time)*0.2), color+(sin(time)*0.2), color * 0.3, 1.0);",
 
 		"}"
 

@@ -37,6 +37,8 @@ function MakeGrid(planeW, planeH, numW, numH){
 
 var ship1ScoreText, ship2ScoreText;
 
+var gamepadupdates = false;
+
 function createPlayerScoreTexts(){
     ship1ScoreText = document.createElement("div");
     ship2ScoreText = document.createElement("div");
@@ -156,9 +158,27 @@ function init(){
     window.addEventListener("resize", onWindowResize, false);
 
     createPlayerScoreTexts();
+    
+    if (gamepad1 || gamepad2){
+        gamepadupdates = true;
+
+        if (gamepad1){
+            ship.initGamepad(gamepad1);
+        }
+        if (gamepad2){
+            ship2.initGamepad(gamepad2);
+        }
+    }
 
     update();
 
+}
+
+function updateGamepads(){
+    var gamepads = navigator.webkitGetGamepads();
+
+    gamepad1 = gamepads[0];
+    gamepad2 = gamepads[1];
 }
 
 function onWindowResize() {
@@ -257,6 +277,10 @@ var camPanStrength = 1.0;
 var camTarget = new THREE.Vector3(0,0,0);
 var curCamTarget = new THREE.Vector3(0,0,0);
 function update(){
+
+    if (gamepadupdates){
+        updateGamepads();
+    }
     
     if (ship.score >= genOpts.winScore || ship2.score >= genOpts.winScore){
         onGameOver();

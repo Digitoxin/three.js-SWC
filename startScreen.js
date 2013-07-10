@@ -1,3 +1,5 @@
+"use strict";
+
 window.onload = function(){
     initMenu();
 };
@@ -23,8 +25,13 @@ var ship1Name, ship2Name;
 ship1Opts.name = "Player 1";
 ship2Opts.name = "Player 2";
 
-// implement name, color selection and start button
+var player1keys = "WASD";
+var player2keys = "UDLR";
+var player1GamepadActive = false;
+var player2GamepadActive = false;
+
 function initMenu(){
+    initGamepads();
     createColPreviews();
     createStartButton();
     createShipGUIs();
@@ -57,8 +64,8 @@ function createColPreviews(){
 }
 
 function onGUIChange(){
-    ship1Name.textContent = ship1Opts.name + " (WASD)";
-    ship2Name.textContent = ship2Opts.name + " (UDLR)";
+    ship1Name.textContent = ship1Opts.name + " ( " + player1keys + " )";
+    ship2Name.textContent = ship2Opts.name + " ( " + player2keys + " )";
     
     var col = HSL2CSS(ship1Opts.hue2, ship1Opts.sat2, ship1Opts.lit2);
     ship1Name.style.color = col;
@@ -143,3 +150,34 @@ function startGame(){
     init();
     animate();
 }
+
+var gamepad1, gamepad2;
+function initGamepads(){
+    var gamepadSupportAvailable = !!navigator.webkitGetGamepads || !!navigator.webkitGamepads;
+
+    if (!gamepadSupportAvailable){
+        return;
+    }
+
+    var gamepads = navigator.webkitGetGamepads();
+
+    gamepad1 = gamepads[0];
+    gamepad2 = gamepads[1];
+
+    if (gamepad1){
+        console.log("Controller detected! Player 1 controller active!");
+
+        player1keys = "CONTROLLER";
+        player1GamepadActive = true;
+    }
+
+    if (gamepad2){
+        console.log("Controller detected! Player 2 controller active!");
+
+        player2keys = "CONTROLLER";
+        player2GamepadActive = true;
+    }
+
+
+}
+

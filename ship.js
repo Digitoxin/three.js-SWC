@@ -64,6 +64,8 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.score = 0;
     this.maxVel = 0.1;
 
+    this.lastAngle = 0;
+
     this.bullets = [];
 
     scene.add(this.mesh);
@@ -76,18 +78,9 @@ PlayerShip.prototype.update = function(){
 
     this.updateBullets();
 
-    if (keyboard.pressed(this.controls["fire"])){
-        if (this.timesincelastfire > this.timebetweenfiring){
-            this.onFire();
-            this.timesincelastfire = 0;
-        }
-    }
-    
     this.timesincelastfire += 1;
 
-    if (keyboard.pressed(this.controls["up"])){
-        this.onAccel();
-    }
+    this.updateControls(); 
     
     var gravVec = new THREE.Vector3();
     gravVec.copy(this.position);
@@ -102,12 +95,7 @@ PlayerShip.prototype.update = function(){
     this.velocity.x = clamp(-this.maxVel, this.velocity.x, this.maxVel);
     this.velocity.y = clamp(-this.maxVel, this.velocity.y, this.maxVel);
 
-    if (keyboard.pressed(this.controls["left"])){
-        this.rotation -= this.rotSpeed;
-    }
-    if (keyboard.pressed(this.controls["right"])){
-        this.rotation += this.rotSpeed;
-    }
+    
 
     this.position.set(
             this.position.x + this.velocity.x,
@@ -141,6 +129,52 @@ PlayerShip.prototype.update = function(){
         }
     }
 
+};
+
+PlayerShip.prototype.updateControls = function(){
+    if (keyboard.pressed(this.controls["left"])){
+        this.rotation -= this.rotSpeed;
+    }
+    if (keyboard.pressed(this.controls["right"])){
+        this.rotation += this.rotSpeed;
+    }
+
+    if (keyboard.pressed(this.controls["up"])){
+        this.onAccel();
+    }
+    if (keyboard.pressed(this.controls["fire"])){
+        if (this.timesincelastfire > this.timebetweenfiring){
+            this.onFire();
+            this.timesincelastfire = 0;
+        }
+    }
+
+};
+
+PlayerShip.prototype.initGamepad = function(gamepad){
+    this.gamepad = gamepad;
+    this.updateControls = function(){
+
+        if (gamepad.buttons[2]){
+            if (this.timesincelastfire > this.timebetweenfiring){
+                this.onFire();
+                this.timesincelastfire = 0;
+            }
+        }
+
+        if (gamepad.buttons[0]){
+            this.onAccel();
+        }
+
+        var dirVec = new THREE.Vector2(gamepad.axes[0], -gamepad.axes[1]);
+        dirVec.normalize();
+
+
+        this.rotation = (this.rotation - ( this.rotation - (Math.atan2( dirVec.x, dirVec.y ))));
+
+        
+        console.log(dirVec);
+    };
 };
 
 PlayerShip.prototype.onAccel = function(){

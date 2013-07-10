@@ -33,7 +33,7 @@ THREE.TheScreenShader = {
         
         "float hash(float x)",
         "{",
-        "   return fract(sin(x) * 435797.59964453);",
+        "   return fract(sin(x) * 435797.59964);",
         "}",
 
         "vec2 hash2(vec2 v)",
@@ -49,7 +49,7 @@ THREE.TheScreenShader = {
         "    col.r += sin(( pos.y + 0.001 + sin(time * 64.0) * 0.00012 ) * resolution.y * 2.0 + time * speed);",
         "    col.g += sin(( pos.y + 0.003 - sin(time * 70.0) * 0.00015 ) * resolution.y * 2.0 + time * speed);",
         "    col.b += sin(( pos.y + 0.006 + sin(time * 90.0) * 0.00017 ) * resolution.y * 2.0 + time * speed);",
-        "    col += 1.0;",
+        "    col += 0.0;",
         "    col *= 0.5;",
             
         "    //col = max(vec4(0.1), col);",
@@ -63,7 +63,7 @@ THREE.TheScreenShader = {
         "    col += flicker;",
         
         "// vignette",
-        "vec2 t = 1.0 * ( pos - vec2( 0.5 ) );",
+        "vec2 t = 1.0 * ( pos*0.2 - vec2( 0.5 ) );",
         
         "t *= t;",
         
@@ -85,16 +85,27 @@ THREE.TheScreenShader = {
         
         "col = tv(col, pos);",
 
-        
         "col.a = 1.0;",
         
         "vec4 screenCol = texture2D(tDiffuse, vUv);",
         "float d = distance(pos, vec2(0.5, 0.5));",
-        "screenCol -= d*2.0;",
-        
-        "col *= d*2.2;",
+        "screenCol -= d*1.0;",
 
-        "gl_FragColor = vec4(vec3(screenCol + col), 1.0);",
+        "bool isScreen = false;",
+
+        "if (screenCol.r >0.0 || screenCol.g > 0.0 || screenCol.g > 0.0){",
+            "isScreen = true;",
+        "}",
+
+        "vec4 c;",
+
+        "if (isScreen){",
+            "c = screenCol + (col - 0.5*col);",
+        "}else{",
+            "c = screenCol + col;",
+        "}",
+
+        "gl_FragColor = vec4(vec3(c), 1.0);",
     "}	",
 
 	].join("\n")
