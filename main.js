@@ -218,8 +218,26 @@ function countDown(){
     }
 }
 
+function gameOverUpdate(){
+    if (keyboard.pressed("R")){
+        ship.onSpawn();
+        ship2.onSpawn();
+
+        ship.score = 0;
+        ship2.score = 0;
+
+        document.body.removeChild(gameWinText);
+
+        updatePlayerScoreTexts();
+        
+        upFunc = update;
+    }
+}
+
+var gameWinText;
+
 function onGameOver(){
-    upFunc = function(){};
+    upFunc = gameOverUpdate;
 
     var winText;
     var col1, col2;
@@ -233,7 +251,9 @@ function onGameOver(){
         col2 = HSL2CSS(ship2Opts.hue2, ship2Opts.sat2, ship2Opts.lit2);
     }
 
-    var gameWinText = document.createElement("h1");
+    winText += " (R to restart)"
+
+    gameWinText = document.createElement("h1");
 
     gameWinText.textContent = winText;
     

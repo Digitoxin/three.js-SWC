@@ -57,7 +57,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.velocity = new THREE.Vector3();
     this.rotation = 0;
     this.accel = 0.00025;
-    this.rotSpeed = 0.1;
+    this.rotSpeed = 0.115;
     this.bulletShotSpeed = 0.02;
     this.timebetweenfiring = 45;
     this.timesincelastfire = 0;
