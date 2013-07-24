@@ -62,7 +62,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.timebetweenfiring = 45;
     this.timesincelastfire = 0;
     this.score = 0;
-    this.maxVel = 0.1;
+    this.maxVel = 0.04;
 
     this.lastAngle = 0;
 
