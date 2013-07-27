@@ -41,7 +41,6 @@ function createShipMesh(scale, primaryColor, secondaryColor){
 }
 
 function PlayerShip(scale, controls, primaryColor, secondaryColor){
-    // A dictionary containing keys
     this.scale = scale;
     this.controls = controls;
 

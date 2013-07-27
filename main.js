@@ -203,9 +203,9 @@ function onWindowResize() {
     renderer.setSize(WIDTH,HEIGHT);
 }
 
-var curTime = 0, fDelta = 0;
+var curTime = 0.0, fDelta = 0.0;
 
-var ct = 0;
+var ct = 0.0;
 
 var upFunc = countDown;
 
@@ -235,9 +235,7 @@ function gameOverUpdate(){
         
         document.body.removeChild(gameWinText);
 
-        console.log("gameover");
-        
-        upFunc = update;
+        upFunc = gameUpdate;
     }
 }
 
@@ -281,6 +279,7 @@ function animate(){
     requestAnimationFrame(animate);
     
     fDelta = clock.getDelta();
+    console.log(fDelta);
     curTime += fDelta;
     
     upFunc();
