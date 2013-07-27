@@ -59,7 +59,7 @@ function createInfoImage(){
 var logotext;
 function createLogoText(){
     logotext = document.createElement("h2");
-    logotext.textContent = "SpaceWar!: Arena";
+    logotext.textContent = "CosmoWar!";
 
     logotext.style.fontFamily = "press_start_2pregular";
     logotext.style.color = "white";
