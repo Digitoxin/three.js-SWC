@@ -56,13 +56,16 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.position = new THREE.Vector3(this.spawnPoint.x, this.spawnPoint.y,0);
     this.velocity = new THREE.Vector3();
     this.rotation = 0;
-    this.accel = 0.00025;
+    this.accel = 0.00023;
     this.rotSpeed = 0.115;
     this.bulletShotSpeed = 0.02;
-    this.timebetweenfiring = 45;
+    this.timebetweenfiring = 60;
     this.timesincelastfire = 0;
     this.score = 0;
     this.maxVel = 0.04;
+    this.spawnRot = 0;
+    this.spawnInvT = 120;
+    this.spawnInvincibility = this.spawnInvT;
 
     this.lastAngle = 0;
 
@@ -72,9 +75,19 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
 }
 
 var center = new THREE.Vector3(0,0,0);
-var gravForce = 0.007;
+var gravForce = 0.0065;
 
 PlayerShip.prototype.update = function(){
+    
+    this.spawnInvincibility -= 1;
+
+    if (this.spawnInvincibility > 0){
+        this.mesh.visible = this.spawnInvincibility % 2;
+    } else {
+        this.mesh.visible = 1;
+    }
+
+    console.log(this.mesh.visible);
 
     this.updateBullets();
 
@@ -155,25 +168,24 @@ PlayerShip.prototype.initGamepad = function(gamepad){
     this.gamepad = gamepad;
     this.updateControls = function(){
 
-        if (gamepad.buttons[2]){
+        if (gamepad.buttons[0]){
             if (this.timesincelastfire > this.timebetweenfiring){
                 this.onFire();
                 this.timesincelastfire = 0;
             }
         }
 
-        if (gamepad.buttons[0]){
-            this.onAccel();
+        if (gamepad.buttons[7]){
+            this.velocity.x += (Math.cos(this.rotation+90*Math.PI/180)*this.accel)*gamepad.buttons[7];
+            this.velocity.y += (Math.sin(this.rotation+90*Math.PI/180)*this.accel)*gamepad.buttons[7];
         }
 
         var dirVec = new THREE.Vector2(gamepad.axes[0], -gamepad.axes[1]);
-        dirVec.normalize();
+        if (dirVec.length() > 0.2){
+            dirVec.normalize();
+            this.rotation = (this.rotation - ( this.rotation - (Math.atan2( dirVec.x, dirVec.y ))));
+        }
 
-
-        this.rotation = (this.rotation - ( this.rotation - (Math.atan2( dirVec.x, dirVec.y ))));
-
-        
-        console.log(dirVec);
     };
 };
 
@@ -197,7 +209,7 @@ PlayerShip.prototype.deleteBullets = function(){
                 this.bullets[i].position.distanceTo(center) < sun.radius){
 
             this.bullets[i].exit();
-            this.bullet = 0;
+            this.bullets[i] = 0;
             this.bullets.splice(i, 1);
             this.deleteBullets();
         }
@@ -223,20 +235,31 @@ PlayerShip.prototype.onFire = function(){
 PlayerShip.prototype.onSpawn = function(){
     this.position.set(this.spawnPoint.x, this.spawnPoint.y, 0);
     this.velocity.set(0,0,0);
-    this.rotation = 0;
+    this.rotation = this.spawnRot;
     updatePlayerScoreTexts();
+    this.spawnInvincibility = this.spawnInvT;
 };
 
-PlayerShip.prototype.checkBulletsAgainst = function(ship){
-    for (var i = 0; i < this.bullets.length; i++){
-        if (this.bullets[i].position.distanceTo(ship.position) < ship.scale*2.0){
-            this.bullets[i].exit();
-            this.bullets.splice(i, 1);
-            
-            this.score += 1;
-            
-            ship.onSpawn();
-            
+PlayerShip.prototype.checkBulletsAgainst = function(theship){
+    if (theship.spawnInvincibility <= 0){
+        for (var i = 0; i < this.bullets.length; i++){
+            if (this.bullets[i].position.distanceTo(theship.position) < theship.scale*2.0){
+                this.bullets[i].exit();
+                this.bullets.splice(i, 1);
+                
+                this.score += 1;
+                
+                theship.onSpawn();
+                
+            }
         }
     }
+};
+
+PlayerShip.prototype.clearBullets = function(){
+    for (var i = 0; i < this.bullets.length; i++){
+        this.bullets[i].exit();
+    }
+
+    this.bullets = new Array();
 };

@@ -26,19 +26,45 @@ ship1Opts.name = "Player 1";
 ship2Opts.name = "Player 2";
 
 var player1keys = "WASD";
-var player2keys = "UDLR";
+var player2keys = "↑ ← ↓ →";
 var player1GamepadActive = false;
 var player2GamepadActive = false;
 
 function initMenu(){
     initGamepads();
+    createLogoText();
     createColPreviews();
     createStartButton();
+    createInfoImage();
     createShipGUIs();
 }
 
 function HSL2CSS(h,s,l){
     return "hsl(" + h + ", " + s + "%, " + l + "%)";
+}
+var infoImage;
+function createInfoImage(){
+    infoImage = document.createElement("img");
+    infoImage.style.position = "fixed";
+    infoImage.style.right = "0%";
+    infoImage.style.top = "0%";
+    infoImage.style.zIndex = "-1";
+    infoImage.style.height = "100%";
+    infoImage.onload = function(e){
+        document.body.appendChild(infoImage);
+    };
+    infoImage.setAttribute("src", "images/buttons.png");
+}
+
+var logotext;
+function createLogoText(){
+    logotext = document.createElement("h2");
+    logotext.textContent = "SpaceWar!: Arena";
+
+    logotext.style.fontFamily = "press_start_2pregular";
+    logotext.style.color = "white";
+
+    document.body.appendChild(logotext);
 }
 
 function createColPreviews(){
@@ -96,7 +122,7 @@ function createShipGUIs(){
     gui.add(genOpts, "winScore", 1, 10).step(1);
     
     gui.domElement.style.position = "relative";
-    gui.domElement.style.top = "150px";
+    gui.domElement.style.top = "200px";
 
     guiContainer = document.getElementById("GUIContainer");
     guiContainer.appendChild(gui.domElement);
@@ -143,6 +169,8 @@ function exitMenu(){
     document.body.removeChild(guiContainer);
     document.body.removeChild(ship1Name);
     document.body.removeChild(ship2Name);
+    document.body.removeChild(logotext);
+    document.body.removeChild(infoImage);
 }
 
 function startGame(){

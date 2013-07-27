@@ -128,6 +128,8 @@ function init(){
 
     ship.position.x = 0.75;
     ship.position.y = 0.75;
+
+    ship.spawnRot = 180*Math.PI/180;
     
     ship2 = new PlayerShip(
                 0.03,
@@ -139,6 +141,9 @@ function init(){
     ship2.position.y = -0.75;
 
     ship2.spawnPoint.set(-0.75, -0.75);
+    
+    ship.rotation = ship.spawnRot;
+    ship2.rotation = ship2.spawnRot;
 
     composer = new THREE.EffectComposer( renderer );
     composer.addPass( new THREE.RenderPass( scene, camera ) );
@@ -226,9 +231,11 @@ function gameOverUpdate(){
         ship.score = 0;
         ship2.score = 0;
 
+        updatePlayerScoreTexts();
+        
         document.body.removeChild(gameWinText);
 
-        updatePlayerScoreTexts();
+        console.log("gameover");
         
         upFunc = update;
     }
@@ -238,6 +245,9 @@ var gameWinText;
 
 function onGameOver(){
     upFunc = gameOverUpdate;
+
+    ship.clearBullets();
+    ship2.clearBullets();
 
     var winText;
     var col1, col2;
