@@ -2,13 +2,14 @@ function BasicBullet(color){
     this.radius = 0.01;
     this.segments = 6;
     this.rings = 4;
-
-    this.lifetime = 120;
+    
+    this.startLifeTime = 160;
+    this.lifetime = this.startLifeTime;
 
     this.position = new THREE.Vector3(0,0,0);
     this.velocity = new THREE.Vector3(0,0,0);
 
-    this.gravityFactor = 0.0003;
+    this.gravityFactor = 0.0005;
 
     this.mesh = new THREE.Mesh(
             new THREE.SphereGeometry(
@@ -28,7 +29,7 @@ BasicBullet.prototype.update = function(){
     
     this.position.set(this.position.x + this.velocity.x, this.position.y + this.velocity.y, 0);
     
-    this.mesh.scale.set(this.lifetime/120 + 0.8, this.lifetime/120 + 0.8, this.lifetime/120 + 0.8);
+    this.mesh.scale.set(this.lifetime/this.startLifeTime + 0.8, this.lifetime/this.startLifeTime + 0.8, this.lifetime/this.startLifeTime + 0.8);
 
     var gravVec = new THREE.Vector3();
     gravVec.copy(this.position);
@@ -40,17 +41,17 @@ BasicBullet.prototype.update = function(){
     this.velocity.y += (-gravVec.y * this.gravityFactor) / distance;
  
 
-   if (this.position.x > 1){
-        this.position.x = -1;
+   if (this.position.x > planeSize){
+        this.position.x = -planeSize;
     }
-    if (this.position.x < -1){
-        this.position.x = 1;
+    if (this.position.x < -planeSize){
+        this.position.x = planeSize;
     }
-    if (this.position.y > 1){
-        this.position.y = -1;
+    if (this.position.y > planeSize){
+        this.position.y = -planeSize;
     }
-    if (this.position.y < -1){
-        this.position.y = 1;
+    if (this.position.y < -planeSize){
+        this.position.y = planeSize;
     } 
 };
 

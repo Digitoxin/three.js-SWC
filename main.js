@@ -16,10 +16,14 @@ var statsOn = false;
 // for the TV shader effect
 var shaderEnabled = false;
 
+var isGameOver = false;
+
 var RATIO = WIDTH / HEIGHT,
     VIEW_ANGLE = 45,
     NEAR = 0.1,
     FAR = 10000;
+
+var planeSize = 1.4;
 
 var camera, scene, clock, controls, renderer, stats, container, keyboard;
 var composer, effect;
@@ -118,7 +122,7 @@ function init(){
 
     scene.add( pointLight );
     
-    MakeGrid(10,10,.2,.2);
+    MakeGrid(planeSize*10, planeSize*10, 0.2, 0.2);
 
     scene.add(new THREE.AmbientLight(0xffffff));
 
@@ -130,8 +134,8 @@ function init(){
                 [(ship1Opts.hue1)/360, ship1Opts.sat1/100,ship1Opts.lit1/100],
                 [ship1Opts.hue2/360, ship1Opts.sat2/100,ship1Opts.lit2/100]);
 
-    ship.position.x = 0.75;
-    ship.position.y = 0.75;
+    ship.position.x = 1.0;
+    ship.position.y = 1.0;
 
     ship.spawnRot = 180*Math.PI/180;
     
@@ -141,10 +145,11 @@ function init(){
                 [ship2Opts.hue1/360, ship2Opts.sat1/100,ship2Opts.lit1/100],
                 [ship2Opts.hue2/360, ship2Opts.sat2/100,ship2Opts.lit2/100]);
 
-    ship2.position.x = -0.75;
-    ship2.position.y = -0.75;
+    ship2.position.x = -1.0;
+    ship2.position.y = -1.0;
 
-    ship2.spawnPoint.set(-0.75, -0.75);
+    ship.spawnPoint.set(1.0, 1.0);
+    ship2.spawnPoint.set(-1.0, -1.0);
     
     ship.rotation = ship.spawnRot;
     ship2.rotation = ship2.spawnRot;
@@ -222,13 +227,17 @@ function gameUpdate(){
 }
 
 function countDown(){
-    if (curTime > 3){
+    if (curTime > 1){
         upFunc = gameUpdate;
     }
 }
 
+var gameWinText;
+
 function gameOverUpdate(){
     if (keyboard.pressed("R")){
+        console.log("game restarted");
+        
         ship.onSpawn();
         ship2.onSpawn();
 
@@ -239,21 +248,24 @@ function gameOverUpdate(){
         
         document.body.removeChild(gameWinText);
         
-        gameUpdate();
-        gameUpdate();
-        gameUpdate();
         curTime = 0;
         upFunc = countDown;
+
+        isGameOver = false;
     }
 }
 
-var gameWinText;
 
 function onGameOver(){
     upFunc = gameOverUpdate;
 
     ship.clearBullets();
     ship2.clearBullets();
+
+    ship.jet.clearParticles();
+    ship2.jet.clearParticles();
+
+    console.log("onGameOver called");
 
     var winText;
     var col1, col2;
@@ -267,7 +279,7 @@ function onGameOver(){
         col2 = HSL2CSS(ship2Opts.hue2, ship2Opts.sat2, ship2Opts.lit2);
     }
 
-    winText += " (R to restart)"
+    winText += " (R to restart)";
 
     gameWinText = document.createElement("h1");
 
@@ -317,9 +329,15 @@ function update(){
     if (gamepadupdates){
         updateGamepads();
     }
+
+    // fix for onGameOver being called twice
+    if (isGameOver){
+        return;
+    }
     
     if (ship.score >= genOpts.winScore || ship2.score >= genOpts.winScore){
         onGameOver();
+        isGameOver = true;
         return;
     }
 
@@ -346,7 +364,7 @@ function update(){
     var distFrTarget = camera.position.z - targetDist;
     
     camera.position.z = camera.position.z - (distFrTarget*easeFactor);
-    camera.fov = 20 + 10 * dist;
+    camera.fov = 30 + 10 * dist;
     camera.updateProjectionMatrix();
 
     camera.lookAt(curCamTarget);
@@ -356,7 +374,8 @@ function update(){
 
     ship.checkBulletsAgainst(ship2);
     ship2.checkBulletsAgainst(ship);
-
+    
+    
 }
 
 function render(){

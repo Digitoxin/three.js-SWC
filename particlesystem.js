@@ -16,6 +16,8 @@ function Particle(geometry, material){
     
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.lookAt(camera.position);
+
+    this.gravityFactor = 0.02;
 }
 
 Particle.prototype.update = function(){
@@ -27,10 +29,38 @@ Particle.prototype.update = function(){
     
     this.rotation += this.rotInc;
 
-    this.mesh.rotation.z += this.rotInc;
+    this.mesh.lookAt(camera.position);
+    this.mesh.rotation.z = this.rotation;
 
     this.scale += this.scaleInc;
     this.mesh.scale.set(this.scale, this.scale, this.scale);
+    
+    var gravVec = new THREE.Vector3();
+    gravVec.copy(this.position);
+    gravVec.normalize();
+    
+    var distance = center.distanceTo(this.position);
+    
+    this.velocity.x += (-gravVec.x * this.gravityFactor) / (distance*100);
+    this.velocity.y += (-gravVec.y * this.gravityFactor) / (distance*100);
+
+    if (this.position.x > planeSize){
+        this.position.x = -planeSize;
+    }
+    if (this.position.x < -planeSize){
+        this.position.x = planeSize;
+    }
+    if (this.position.y > planeSize){
+        this.position.y = -planeSize;
+    }
+    if (this.position.y < -planeSize){
+        this.position.y = planeSize;
+    }
+
+    if (distance < sun.radius){
+        this.exit();
+    }
+
 };
 
 Particle.prototype.exit = function(){
@@ -78,7 +108,7 @@ JetParticleSystem.prototype.updateParticles = function(){
     for (var i = 0; i < this.particles.length; i++){
         this.particles[i].update();
     }
-}
+};
 
 JetParticleSystem.prototype.checkDeleteParticles = function(){
     for (var i = 0; i < this.particles.length; i++){
@@ -88,6 +118,13 @@ JetParticleSystem.prototype.checkDeleteParticles = function(){
             this.checkDeleteParticles();
         }
     }
+};
+
+JetParticleSystem.prototype.clearParticles = function(){
+    for (var i = 0; i < this.particles.length; i++){
+        this.particles[i].exit();
+    }
+    this.particles = [];
 };
 
 function makeFlarePartSys(){

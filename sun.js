@@ -1,7 +1,7 @@
 var sunShader = new THREE.ShaderMaterial( THREE.SunShader );
 
 function Sun(){
-    this.radius = 0.1;
+    this.radius = 0.2;
     this.segments = 16;
     this.rings = 16;
 

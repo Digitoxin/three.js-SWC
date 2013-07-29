@@ -43,8 +43,6 @@ function createShipMesh(scale, primaryColor, secondaryColor){
 function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.scale = scale;
     this.controls = controls;
-    
-    
 
     this.primCol = new THREE.Color( 0xffffff );
     this.primCol.setHSL(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -59,8 +57,8 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.rotation = 0;
     this.accel = 0.00023;
     this.rotSpeed = 0.115;
-    this.bulletShotSpeed = 0.02;
-    this.timebetweenfiring = 60;
+    this.bulletShotSpeed = 0.025;
+    this.timebetweenfiring = 80;
     this.timesincelastfire = 0;
     this.score = 0;
     this.maxVel = 0.02;
@@ -80,7 +78,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
 }
 
 var center = new THREE.Vector3(0,0,0);
-var gravForce = 0.0065;
+var gravForce = 0.01;
 
 PlayerShip.prototype.update = function(){
     
@@ -105,7 +103,6 @@ PlayerShip.prototype.update = function(){
     gravVec.copy(this.position);
     gravVec.normalize();
     
-       
     var distance = (this.position.x === 0 && this.position.y === 0) ? 0.00000000000001 : center.distanceTo(this.position);
     
     this.velocity.x += (-gravVec.x * gravForce) / (distance*100);
@@ -128,17 +125,17 @@ PlayerShip.prototype.update = function(){
 
     this.mesh.rotation.set(0, 0, this.rotation);
 
-    if (this.position.x > 1){
-        this.position.x = -1;
+    if (this.position.x > planeSize){
+        this.position.x = -planeSize;
     }
-    if (this.position.x < -1){
-        this.position.x = 1;
+    if (this.position.x < -planeSize){
+        this.position.x = planeSize;
     }
-    if (this.position.y > 1){
-        this.position.y = -1;
+    if (this.position.y > planeSize){
+        this.position.y = -planeSize;
     }
-    if (this.position.y < -1){
-        this.position.y = 1;
+    if (this.position.y < -planeSize){
+        this.position.y = planeSize;
     }
 
     if (this.position.distanceTo(center) < sun.radius){
@@ -268,7 +265,6 @@ PlayerShip.prototype.checkBulletsAgainst = function(theship){
                 this.score += 1;
                 
                 theship.onSpawn();
-                
             }
         }
     }
