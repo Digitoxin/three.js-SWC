@@ -1,7 +1,7 @@
 "use strict";
 
 // 1 for 1:1 rendering, 2 for resolution/2 rendering, 0.5 for 2*resolution rendering (supersampling)...
-var sFactor = 2;
+var sFactor = 1;
 
 var WIDTH = window.innerWidth/sFactor;
 var HEIGHT = window.innerHeight/sFactor;
@@ -25,6 +25,8 @@ var camera, scene, clock, controls, renderer, stats, container, keyboard;
 var composer, effect;
 
 var ship, ship2, sun;
+
+var psys;
 
 var gridMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
 function MakeGrid(planeW, planeH, numW, numH){
@@ -107,8 +109,10 @@ function init(){
 
     scene = new THREE.Scene();
     scene.add(camera);
+    
+    psys = makeFlarePartSys();
+    psys.active = false;    
 
-        
     var pointLight = new THREE.PointLight(0xffffff,1.0,100.0);
     pointLight.position = camera.position;
 
@@ -318,6 +322,8 @@ function update(){
         onGameOver();
         return;
     }
+
+    psys.update();
 
     var curTime = clock.getElapsedTime();
     camera.position.x = Math.sin(curTime*camPanSpeed)*camPanStrength;

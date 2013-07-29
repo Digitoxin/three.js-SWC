@@ -43,6 +43,8 @@ function createShipMesh(scale, primaryColor, secondaryColor){
 function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.scale = scale;
     this.controls = controls;
+    
+    
 
     this.primCol = new THREE.Color( 0xffffff );
     this.primCol.setHSL(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -61,7 +63,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.timebetweenfiring = 60;
     this.timesincelastfire = 0;
     this.score = 0;
-    this.maxVel = 0.04;
+    this.maxVel = 0.02;
     this.spawnRot = 0;
     this.spawnInvT = 120;
     this.spawnInvincibility = this.spawnInvT;
@@ -71,6 +73,10 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.bullets = [];
 
     scene.add(this.mesh);
+
+    this.flarePartMat = new THREE.MeshBasicMaterial({map:flareTex, transparent: true, blending: THREE.AdditiveBlending, doublesided: true, color: 0xffffff, opacity: 0.9});
+    this.flarePartMat.color.setHSL(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    this.jet = new JetParticleSystem(particleGeom, this.flarePartMat, 3);
 }
 
 var center = new THREE.Vector3(0,0,0);
@@ -86,11 +92,14 @@ PlayerShip.prototype.update = function(){
         this.mesh.visible = 1;
     }
 
+
     this.updateBullets();
 
     this.timesincelastfire += 1;
-
+    
+    this.jet.active = false;
     this.updateControls(); 
+    this.jet.update();
     
     var gravVec = new THREE.Vector3();
     gravVec.copy(this.position);
@@ -133,12 +142,22 @@ PlayerShip.prototype.update = function(){
     }
 
     if (this.position.distanceTo(center) < sun.radius){
-        this.onSpawn();
         if (this.score > 0){
             this.score -= 1;
         }
+        this.onSpawn();
     }
 
+    this.jet.position.copy(this.position);
+
+    var jvel = new THREE.Vector3();
+    jvel.copy(this.velocity);
+
+    jvel.x /= 2;
+    jvel.y /= 2;
+    jvel.z /= 2;
+
+    this.jet.velocity.copy(jvel);
 };
 
 PlayerShip.prototype.updateControls = function(){
@@ -151,6 +170,7 @@ PlayerShip.prototype.updateControls = function(){
 
     if (keyboard.pressed(this.controls["up"])){
         this.onAccel();
+        this.jet.active = true;
     }
     if (keyboard.pressed(this.controls["fire"])){
         if (this.timesincelastfire > this.timebetweenfiring){
@@ -175,6 +195,7 @@ PlayerShip.prototype.initGamepad = function(gamepad){
         if (gamepad.buttons[7]){
             this.velocity.x += (Math.cos(this.rotation+90*Math.PI/180)*this.accel)*gamepad.buttons[7];
             this.velocity.y += (Math.sin(this.rotation+90*Math.PI/180)*this.accel)*gamepad.buttons[7];
+            this.jet.active = true;
         }
 
         var dirVec = new THREE.Vector2(gamepad.axes[0], -gamepad.axes[1]);

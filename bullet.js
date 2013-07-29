@@ -28,7 +28,7 @@ BasicBullet.prototype.update = function(){
     
     this.position.set(this.position.x + this.velocity.x, this.position.y + this.velocity.y, 0);
     
-    this.mesh.scale.set(this.lifetime/100, this.lifetime/100, this.lifetime/100);
+    this.mesh.scale.set(this.lifetime/120 + 0.8, this.lifetime/120 + 0.8, this.lifetime/120 + 0.8);
 
     var gravVec = new THREE.Vector3();
     gravVec.copy(this.position);

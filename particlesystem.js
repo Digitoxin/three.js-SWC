@@ -1,45 +1,71 @@
 // I'll do DRY next time, I swear...
 
-var ParticleGeom = new THREE.PlaneGeometry(1,1);
-var fireTex = THREE.ImageUtils.loadTexture("fire.png");
-var fireParticleMaterial = new THREE.MeshBasicMaterial({map:fireTex});
+var particleGeom = new THREE.PlaneGeometry(0.1, 0.1);
+var flareTex = THREE.ImageUtils.loadTexture("images/flare.png");
+var flareParticleMaterial = new THREE.MeshBasicMaterial({map:flareTex, transparent: true, blending: THREE.AdditiveBlending, doublesided: true, color: 0xffff00, opacity: 0.9});
 
 function Particle(geometry, material){
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
-    this.lifetime = 100;
+    this.rotation = 0;
+    this.rotInc = Math.random()*0.2-0.1;
+    this.lifetime = 120;
     
-    this.scaleInc = 0.01;
-    this.scale = 1.0;
+    this.scaleInc = Math.random()*0.005;
+    this.scale = 0.3;
     
     this.mesh = new THREE.Mesh(geometry, material);
-    scene.add(this.mesh);
+    this.mesh.lookAt(camera.position);
 }
 
 Particle.prototype.update = function(){
     this.lifetime -= 1;
+    
     this.position.set( this.position.x + this.velocity.x, this.position.y + this.velocity.y, this.position.z + this.velocity.z );
-    this.scale += scaleInc;
+    
+    this.mesh.position.set(this.position.x, this.position.y, this.position.z);
+    
+    this.rotation += this.rotInc;
+
+    this.mesh.rotation.z += this.rotInc;
+
+    this.scale += this.scaleInc;
+    this.mesh.scale.set(this.scale, this.scale, this.scale);
 };
 
 Particle.prototype.exit = function(){
     scene.remove(this.mesh);
 };
 
-function ParticleSystem(particleType, particleInterval){
+function makeParticle(geo, mat){
+    var part = new Particle(geo, mat);
+    scene.add(part.mesh);
+    return part;
+}
+
+function JetParticleSystem(geo, mat, particleInterval){
+    this.position = new THREE.Vector3();
+    this.velocity = new THREE.Vector3();
     this.particles = [];
     this.particleInterval = particleInterval;
     this.sinceLastParticle = 0;
-    this.MakeParticle = particleType;
+    this.geo = geo;
+    this.mat = mat;
     this.active = false;
 }
 
-ParticleSystem.prototype.update = function(){
-    this.sinceLastParticle -= 1;
+JetParticleSystem.prototype.update = function(){
+    this.sinceLastParticle += 1;
 
     if (this.active){
-        if (this.sinceLastParticle <= 0){
-            this.particles.push( this.MakeParticle() );
+        if (this.sinceLastParticle > this.particleInterval){
+            var part = makeParticle(this.geo, this.mat);
+            part.position.copy(this.position);
+            part.position.z = Math.random()*0.1;
+            part.velocity.copy(this.velocity);
+            part.velocity.x += Math.random()*0.005-0.0025;
+            part.velocity.y += Math.random()*0.005-0.0025;
+            this.particles.push( part );
             this.sinceLastParticle = 0;
         }
     }
@@ -48,18 +74,24 @@ ParticleSystem.prototype.update = function(){
     this.checkDeleteParticles();
 };
 
-ParticleSystem.prototype.updateParticles = function(){
+JetParticleSystem.prototype.updateParticles = function(){
     for (var i = 0; i < this.particles.length; i++){
         this.particles[i].update();
     }
 }
 
-ParticleSystem.prototype.checkDeleteParticles = function(){
+JetParticleSystem.prototype.checkDeleteParticles = function(){
     for (var i = 0; i < this.particles.length; i++){
         if (this.particles[i].lifetime < 0){
             this.particles[i].exit();
             this.particles.splice(i, 1);
-            this.deleteParticles();
+            this.checkDeleteParticles();
         }
     }
 };
+
+function makeFlarePartSys(){
+    var pSys = new JetParticleSystem(particleGeom, flareParticleMaterial, 3, new THREE.Vector3(0,0,0));
+
+    return pSys;
+}

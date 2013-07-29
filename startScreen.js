@@ -11,18 +11,16 @@ function getRandomInt(min, max){
 var startButton;
 var gui, ship1GUI, ship2GUI;
 var guiContainer;
+var randomButton;
 var huemin = 0, huemax = 360, satmin = 0, satmax = 100, litmin = 25, litmax = 100;
 var opts = function(){ this.name = "Player"; 
     this.hue1 = getRandomInt(huemin, huemax); this.sat1 = getRandomInt(satmin, satmax); this.lit1 = getRandomInt(litmin, litmax);
     this.hue2 = getRandomInt(huemin, huemax); this.sat2 = getRandomInt(satmin, satmax); this.lit2 = getRandomInt(litmin, litmax);};
 var ship1Opts, ship2Opts;
 
-
-
 var genOpts = {winScore: 3};
 
 var ship1Name, ship2Name;
-
 
 var player1keys = "WASD";
 var player2keys = "↑ ← ↓ →";
@@ -48,9 +46,9 @@ function initMenu(){
     createLogoText();
     createColPreviews();
     createStartButton();
+    createRandomButton();
     createInfoImage();
     createShipGUIs();
-
     
 }
 
@@ -132,6 +130,28 @@ function createStartButton(){
     document.body.appendChild(startButton);
 }
 
+function createRandomButton(){
+    randomButton = document.createElement("button");
+    randomButton.setAttribute("type", "button");
+    randomButton.setAttribute("name", "randomCol");
+    randomButton.setAttribute("onclick", "randomizeColors()");
+    randomButton.textContent = "Randomize Colors";
+    randomButton.style.position = "relative";
+    document.body.appendChild(randomButton);
+}
+
+function randomizeColors(){
+    var name1 = ship1Opts.name, name2 = ship2Opts.name;
+
+    ship1Opts = new opts();
+    ship2Opts = new opts();
+
+    ship1Opts.name = name1;
+    ship2Opts.name = name2;
+
+    onGUIChange();
+}
+
 function createShipGUIs(){
     gui = new dat.GUI({ autoPlace: false });
     gui.add(genOpts, "winScore", 1, 10).step(1);
@@ -186,6 +206,7 @@ function exitMenu(){
     document.body.removeChild(ship2Name);
     document.body.removeChild(logotext);
     document.body.removeChild(infoImage);
+    document.body.removeChild(randomButton);
 
     localStorage.setItem("ship1opts", JSON.stringify(ship1Opts));
     localStorage.setItem("ship2opts", JSON.stringify(ship2Opts));
@@ -199,31 +220,30 @@ function startGame(){
 
 var gamepad1, gamepad2;
 function initGamepads(){
-    var gamepadSupportAvailable = !!navigator.webkitGetGamepads || !!navigator.webkitGamepads;
+    // TODO: once API stabilizes, add code for firefox. Once both chrome and firefox agree, scrap everything and rewrite this section.
+    // NOTE: Need to build custom wrapper for gamepad functions once firefox support arrives.
+    var webkitGamepadSupportAvailable = !!navigator.webkitGetGamepads;
 
-    if (!gamepadSupportAvailable){
-        return;
+    if (!!webkitGamepadSupportAvailable){
+        var gamepads = navigator.webkitGetGamepads();
+
+        gamepad1 = gamepads[0];
+        gamepad2 = gamepads[1];
+
+        if (gamepad1){
+            console.log("Controller detected! Player 1 controller active!");
+
+            player1keys = "CONTROLLER";
+            player1GamepadActive = true;
+        }
+
+        if (gamepad2){
+            console.log("Controller detected! Player 2 controller active!");
+
+            player2keys = "CONTROLLER";
+            player2GamepadActive = true;
+        }
     }
-
-    var gamepads = navigator.webkitGetGamepads();
-
-    gamepad1 = gamepads[0];
-    gamepad2 = gamepads[1];
-
-    if (gamepad1){
-        console.log("Controller detected! Player 1 controller active!");
-
-        player1keys = "CONTROLLER";
-        player1GamepadActive = true;
-    }
-
-    if (gamepad2){
-        console.log("Controller detected! Player 2 controller active!");
-
-        player2keys = "CONTROLLER";
-        player2GamepadActive = true;
-    }
-
 
 }
 
