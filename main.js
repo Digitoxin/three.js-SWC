@@ -10,6 +10,8 @@ var updatesPerSecond = 1.0 / 60.0;
 
 var statsOn = false;
 
+var plane;
+
 //var WIDTH = 512;
 //var HEIGHT = 240;
 
@@ -32,11 +34,16 @@ var ship, ship2, sun;
 
 var psys;
 
-var gridMaterial = new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: true});
+var gridMaterial = new THREE.ShaderMaterial( THREE.TerrainShader );
+gridMaterial.wireframe = true;
 function MakeGrid(planeW, planeH, numW, numH){
-    var plane = new THREE.Mesh(
+    plane = new THREE.Mesh(
             new THREE.PlaneGeometry(planeW*numW, planeH*numH, planeW, planeH),
             gridMaterial );
+
+    plane.position.set(0,0,0);
+
+    plane.material.side = THREE.DoubleSide;
 
     scene.add(plane);
 }
@@ -305,7 +312,7 @@ function animate(){
     
     sunShader.uniforms.time.value = curTime;
 
-    sunShader.uniforms.amplitude.value = Math.sin(curTime*10);
+    gridMaterial.uniforms.time.value = Math.sin(curTime);
     
     if (shaderEnabled){
         effect.uniforms.time.value = curTime;
