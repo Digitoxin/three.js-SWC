@@ -15,15 +15,14 @@ var huemin = 0, huemax = 360, satmin = 0, satmax = 100, litmin = 25, litmax = 10
 var opts = function(){ this.name = "Player"; 
     this.hue1 = getRandomInt(huemin, huemax); this.sat1 = getRandomInt(satmin, satmax); this.lit1 = getRandomInt(litmin, litmax);
     this.hue2 = getRandomInt(huemin, huemax); this.sat2 = getRandomInt(satmin, satmax); this.lit2 = getRandomInt(litmin, litmax);};
-var ship1Opts = new opts(),
-    ship2Opts = new opts();
+var ship1Opts, ship2Opts;
+
+
 
 var genOpts = {winScore: 3};
 
 var ship1Name, ship2Name;
 
-ship1Opts.name = "Player 1";
-ship2Opts.name = "Player 2";
 
 var player1keys = "WASD";
 var player2keys = "↑ ← ↓ →";
@@ -31,12 +30,28 @@ var player1GamepadActive = false;
 var player2GamepadActive = false;
 
 function initMenu(){
+    if (localStorage.getItem("ship1opts")){
+    ship1Opts = JSON.parse(localStorage.getItem("ship1opts"));
+    } else {
+        ship1Opts = new opts();
+        ship1Opts.name = "Player 1";
+    }
+
+    if (localStorage.getItem("ship2opts")){
+        ship2Opts = JSON.parse(localStorage.getItem("ship2opts"));
+    } else {
+        ship2Opts = new opts()
+        ship2Opts.name = "Player 2";
+    }
+
     initGamepads();
     createLogoText();
     createColPreviews();
     createStartButton();
     createInfoImage();
     createShipGUIs();
+
+    
 }
 
 function HSL2CSS(h,s,l){
@@ -171,6 +186,9 @@ function exitMenu(){
     document.body.removeChild(ship2Name);
     document.body.removeChild(logotext);
     document.body.removeChild(infoImage);
+
+    localStorage.setItem("ship1opts", JSON.stringify(ship1Opts));
+    localStorage.setItem("ship2opts", JSON.stringify(ship2Opts));
 }
 
 function startGame(){

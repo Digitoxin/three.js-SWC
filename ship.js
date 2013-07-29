@@ -86,8 +86,6 @@ PlayerShip.prototype.update = function(){
         this.mesh.visible = 1;
     }
 
-    console.log(this.mesh.visible);
-
     this.updateBullets();
 
     this.timesincelastfire += 1;

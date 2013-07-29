@@ -234,8 +234,12 @@ function gameOverUpdate(){
         updatePlayerScoreTexts();
         
         document.body.removeChild(gameWinText);
-
-        upFunc = gameUpdate;
+        
+        gameUpdate();
+        gameUpdate();
+        gameUpdate();
+        curTime = 0;
+        upFunc = countDown;
     }
 }
 
@@ -279,7 +283,6 @@ function animate(){
     requestAnimationFrame(animate);
     
     fDelta = clock.getDelta();
-    console.log(fDelta);
     curTime += fDelta;
     
     upFunc();
