@@ -312,7 +312,7 @@ function animate(){
     
     sunShader.uniforms.time.value = curTime;
 
-    gridMaterial.uniforms.time.value = Math.sin(curTime);
+    gridMaterial.uniforms.time.value = curTime;
     
     if (shaderEnabled){
         effect.uniforms.time.value = curTime;

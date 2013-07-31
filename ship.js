@@ -57,7 +57,7 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.rotation = 0;
     this.accel = 0.00023;
     this.rotSpeed = 0.115;
-    this.bulletShotSpeed = 0.025;
+    this.bulletShotSpeed = 0.03;
     this.timebetweenfiring = 80;
     this.timesincelastfire = 0;
     this.score = 0;
@@ -73,8 +73,11 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     scene.add(this.mesh);
 
     this.flarePartMat = new THREE.MeshBasicMaterial({map:flareTex, transparent: true, blending: THREE.AdditiveBlending, doublesided: true, color: 0xffffff, opacity: 0.9});
-    this.flarePartMat.color.setHSL(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-    this.jet = new JetParticleSystem(particleGeom, this.flarePartMat, 3);
+    this.flarePartMat.color.setHSL(primaryColor[0], primaryColor[1], primaryColor[2]);
+    this.flarePartMat2 = new THREE.MeshBasicMaterial({map:flareTex, transparent: true, blending: THREE.AdditiveBlending, doublesided: true, color: 0xffffff, opacity: 0.9});
+    this.flarePartMat2.color.setHSL(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+
+    this.jet = new JetParticleSystem(particleGeom, this.flarePartMat, this.flarePartMat2, 3);
 }
 
 var center = new THREE.Vector3(0,0,0);
@@ -111,12 +114,10 @@ PlayerShip.prototype.update = function(){
     this.velocity.x = clamp(-this.maxVel, this.velocity.x, this.maxVel);
     this.velocity.y = clamp(-this.maxVel, this.velocity.y, this.maxVel);
 
-    
-
     this.position.set(
             this.position.x + this.velocity.x,
             this.position.y + this.velocity.y,
-            0);
+            (this.position.x*this.position.x + this.position.y*this.position.y)*(Math.sin(curTime) - 1.0)*0.1);
 
     this.mesh.position.set(
             this.position.x,

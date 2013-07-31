@@ -9,21 +9,23 @@ function Particle(geometry, material){
     this.velocity = new THREE.Vector3();
     this.rotation = 0;
     this.rotInc = Math.random()*0.2-0.1;
-    this.lifetime = 120;
+    this.startLifeTime = 240;
+    this.lifetime = this.startLifeTime;
     
-    this.scaleInc = Math.random()*0.005;
-    this.scale = 0.3;
+    this.scale = 0.6;
     
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.lookAt(camera.position);
 
-    this.gravityFactor = 0.02;
+    this.gravityFactor = 0.01;
 }
 
 Particle.prototype.update = function(){
     this.lifetime -= 1;
     
-    this.position.set( this.position.x + this.velocity.x, this.position.y + this.velocity.y, this.position.z + this.velocity.z );
+    this.position.set( this.position.x + this.velocity.x,
+            this.position.y + this.velocity.y,
+            (this.position.x*this.position.x + this.position.y*this.position.y)*(Math.sin(curTime) - 1.0)*0.1); 
     
     this.mesh.position.set(this.position.x, this.position.y, this.position.z);
     
@@ -32,7 +34,7 @@ Particle.prototype.update = function(){
     this.mesh.lookAt(camera.position);
     this.mesh.rotation.z = this.rotation;
 
-    this.scale += this.scaleInc;
+    this.scale = this.lifetime/this.startLifeTime + Math.random()*0.5;
     this.mesh.scale.set(this.scale, this.scale, this.scale);
     
     var gravVec = new THREE.Vector3();
@@ -73,14 +75,15 @@ function makeParticle(geo, mat){
     return part;
 }
 
-function JetParticleSystem(geo, mat, particleInterval){
+function JetParticleSystem(geo, mat1, mat2, particleInterval){
     this.position = new THREE.Vector3();
     this.velocity = new THREE.Vector3();
     this.particles = [];
     this.particleInterval = particleInterval;
     this.sinceLastParticle = 0;
     this.geo = geo;
-    this.mat = mat;
+    this.mat = mat1;
+    this.mat2 = mat2;
     this.active = false;
 }
 
@@ -89,7 +92,12 @@ JetParticleSystem.prototype.update = function(){
 
     if (this.active){
         if (this.sinceLastParticle > this.particleInterval){
-            var part = makeParticle(this.geo, this.mat);
+            var part;
+            if (Math.random() > 0.5){
+                part = makeParticle(this.geo, this.mat);
+            } else {
+                part = makeParticle(this.geo, this.mat2);
+            }
             part.position.copy(this.position);
             part.position.z = Math.random()*0.1;
             part.velocity.copy(this.velocity);

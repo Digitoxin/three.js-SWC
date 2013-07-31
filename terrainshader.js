@@ -16,9 +16,9 @@ THREE.TerrainShader = {
 
             "vNormal = normal;",
 			
-            "//vec3 newPosition = vec3( position.x, position.y, -abs(normal.z*(position.x * position.y)) );",
+            "vec3 newPosition = vec3( position.x, position.y, (position.x*position.x+position.y*position.y)*(sin(time) - 1.0)*0.1 );",
         
-            "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+            "gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );",
 
 		"}"
 
@@ -31,7 +31,7 @@ THREE.TerrainShader = {
         "varying vec3 vNormal;",
         
 		"void main() {",
-            "gl_FragColor = vec4(0.5, 0.0, 0.0, 1.0);",
+            "gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);",
 		"}"
 
 	].join("\n")

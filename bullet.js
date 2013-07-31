@@ -27,7 +27,9 @@ function BasicBullet(color){
 BasicBullet.prototype.update = function(){
     this.lifetime -= 1;
     
-    this.position.set(this.position.x + this.velocity.x, this.position.y + this.velocity.y, 0);
+    this.position.set(this.position.x + this.velocity.x,
+            this.position.y + this.velocity.y,
+            (this.position.x*this.position.x + this.position.y*this.position.y)*(Math.sin(curTime) - 1.0)*0.1);
     
     this.mesh.scale.set(this.lifetime/this.startLifeTime + 0.8, this.lifetime/this.startLifeTime + 0.8, this.lifetime/this.startLifeTime + 0.8);
 
