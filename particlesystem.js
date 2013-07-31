@@ -12,7 +12,7 @@ function Particle(geometry, material){
     this.startLifeTime = 240;
     this.lifetime = this.startLifeTime;
     
-    this.scale = 0.6;
+    this.scale = 0.3;
     
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.lookAt(camera.position);
@@ -25,16 +25,16 @@ Particle.prototype.update = function(){
     
     this.position.set( this.position.x + this.velocity.x,
             this.position.y + this.velocity.y,
-            (this.position.x*this.position.x + this.position.y*this.position.y)*(Math.sin(curTime) - 1.0)*0.1); 
+            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.25 );
     
-    this.mesh.position.set(this.position.x, this.position.y, this.position.z);
+    this.mesh.position.set(this.position.x, this.position.y, this.position.z+Math.random()*0.01 );
     
     this.rotation += this.rotInc;
 
     this.mesh.lookAt(camera.position);
     this.mesh.rotation.z = this.rotation;
 
-    this.scale = this.lifetime/this.startLifeTime + Math.random()*0.5;
+    this.scale = (this.lifetime/this.startLifeTime)*this.scale + Math.random()*0.2;
     this.mesh.scale.set(this.scale, this.scale, this.scale);
     
     var gravVec = new THREE.Vector3();

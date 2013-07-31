@@ -117,7 +117,7 @@ PlayerShip.prototype.update = function(){
     this.position.set(
             this.position.x + this.velocity.x,
             this.position.y + this.velocity.y,
-            (this.position.x*this.position.x + this.position.y*this.position.y)*(Math.sin(curTime) - 1.0)*0.1);
+            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.25 );
 
     this.mesh.position.set(
             this.position.x,

@@ -16,7 +16,7 @@ THREE.TerrainShader = {
 
             "vNormal = normal;",
 			
-            "vec3 newPosition = vec3( position.x, position.y, (position.x*position.x+position.y*position.y)*(sin(time) - 1.0)*0.1 );",
+            "vec3 newPosition = vec3( position.x, position.y, -(position.x*position.x+position.y*position.y)*0.25 );",
         
             "gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );",
 
