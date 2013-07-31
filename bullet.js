@@ -29,7 +29,7 @@ BasicBullet.prototype.update = function(){
     
     this.position.set(this.position.x + this.velocity.x,
             this.position.y + this.velocity.y,
-            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.25 );
+            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.15 );
     
     this.mesh.scale.set(this.lifetime/this.startLifeTime + 0.8, this.lifetime/this.startLifeTime + 0.8, this.lifetime/this.startLifeTime + 0.8);
 

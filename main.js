@@ -247,6 +247,9 @@ function gameOverUpdate(){
         
         ship.onSpawn();
         ship2.onSpawn();
+		
+		ship.jet.clearParticles();
+	    ship2.jet.clearParticles();
 
         ship.score = 0;
         ship2.score = 0;
@@ -268,9 +271,6 @@ function onGameOver(){
 
     ship.clearBullets();
     ship2.clearBullets();
-
-    ship.jet.clearParticles();
-    ship2.jet.clearParticles();
 
     console.log("onGameOver called");
 

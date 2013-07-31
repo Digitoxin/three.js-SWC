@@ -16,6 +16,8 @@ function Particle(geometry, material){
     
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.lookAt(camera.position);
+	
+	this.mesh.position = this.position;
 
     this.gravityFactor = 0.01;
 }
@@ -25,9 +27,7 @@ Particle.prototype.update = function(){
     
     this.position.set( this.position.x + this.velocity.x,
             this.position.y + this.velocity.y,
-            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.25 );
-    
-    this.mesh.position.set(this.position.x, this.position.y, this.position.z+Math.random()*0.01 );
+            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.15 + Math.random()*0.01 );
     
     this.rotation += this.rotInc;
 

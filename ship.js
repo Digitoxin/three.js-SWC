@@ -78,6 +78,8 @@ function PlayerShip(scale, controls, primaryColor, secondaryColor){
     this.flarePartMat2.color.setHSL(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
 
     this.jet = new JetParticleSystem(particleGeom, this.flarePartMat, this.flarePartMat2, 3);
+	
+	this.mesh.position = this.position;
 }
 
 var center = new THREE.Vector3(0,0,0);
@@ -117,12 +119,7 @@ PlayerShip.prototype.update = function(){
     this.position.set(
             this.position.x + this.velocity.x,
             this.position.y + this.velocity.y,
-            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.25 );
-
-    this.mesh.position.set(
-            this.position.x,
-            this.position.y,
-            this.position.z);
+            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.15);
 
     this.mesh.rotation.set(0, 0, this.rotation);
 
