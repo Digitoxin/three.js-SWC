@@ -242,14 +242,27 @@ function countDown(){
 var gameWinText;
 
 function gameOverUpdate(){
-    if (keyboard.pressed("R")){
+    var gamepadPressed = false;
+    if (!!gamepad1){
+        if (gamepad.buttons[9]){
+            gamepadPressed = true;
+        }
+    }
+    
+    if (!!gamepad2){
+        if (gamepad.buttons[9]){
+                gamepadPressed = true;
+            }
+    }
+
+    if (keyboard.pressed("R") || gamepadPressed){
         console.log("game restarted");
         
         ship.onSpawn();
         ship2.onSpawn();
 		
-		ship.jet.clearParticles();
-	    ship2.jet.clearParticles();
+        ship.jet.clearParticles();
+        ship2.jet.clearParticles();
 
         ship.score = 0;
         ship2.score = 0;
@@ -286,7 +299,7 @@ function onGameOver(){
         col2 = HSL2CSS(ship2Opts.hue2, ship2Opts.sat2, ship2Opts.lit2);
     }
 
-    winText += " (R to restart)";
+    winText += " (R or START to restart)";
 
     gameWinText = document.createElement("h1");
 
