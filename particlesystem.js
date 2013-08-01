@@ -27,14 +27,14 @@ Particle.prototype.update = function(){
     
     this.position.set( this.position.x + this.velocity.x,
             this.position.y + this.velocity.y,
-            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.15 + Math.random()*0.01 );
+            -(this.position.x*this.position.x + this.position.y*this.position.y)*0.15 + Math.random()*0.03 );
     
     this.rotation += this.rotInc;
 
     this.mesh.lookAt(camera.position);
     this.mesh.rotation.z = this.rotation;
 
-    this.scale = (this.lifetime/this.startLifeTime)*this.scale + Math.random()*0.2;
+    this.scale = Math.max( this.lifetime/this.startLifeTime*this.scale, 0.3 ) + Math.random()*0.2;
     this.mesh.scale.set(this.scale, this.scale, this.scale);
     
     var gravVec = new THREE.Vector3();
@@ -136,7 +136,7 @@ JetParticleSystem.prototype.clearParticles = function(){
 };
 
 function makeFlarePartSys(){
-    var pSys = new JetParticleSystem(particleGeom, flareParticleMaterial, 3, new THREE.Vector3(0,0,0));
+    var pSys = new JetParticleSystem(particleGeom, flareParticleMaterial, 2, new THREE.Vector3(0,0,0));
 
     return pSys;
 }
