@@ -244,13 +244,13 @@ var gameWinText;
 function gameOverUpdate(){
     var gamepadPressed = false;
     if (!!gamepad1){
-        if (gamepad.buttons[9]){
+        if (gamepad1.buttons[9]){
             gamepadPressed = true;
         }
     }
     
     if (!!gamepad2){
-        if (gamepad.buttons[9]){
+        if (gamepad2.buttons[9]){
                 gamepadPressed = true;
             }
     }
@@ -321,6 +321,10 @@ function animate(){
     fDelta = clock.getDelta();
     curTime += fDelta;
     
+	if (gamepadupdates){
+        updateGamepads();
+    }
+	
     upFunc();
     
     sunShader.uniforms.time.value = curTime;
@@ -346,9 +350,7 @@ var camTarget = new THREE.Vector3(0,0,0);
 var curCamTarget = new THREE.Vector3(0,0,0);
 function update(){
 
-    if (gamepadupdates){
-        updateGamepads();
-    }
+    
 
     // fix for onGameOver being called twice
     if (isGameOver){
